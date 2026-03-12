@@ -1,2 +1,3 @@
 ﻿  game_pract_sp.cpp
+D:\ProgrammingAll\for_me\SuperPoject\game_pract_sp\game_pract_sp.cpp(430,1): warning C4715: EnemyThread: значение возвращается не при всех путях выполнения
   game_pract_sp.vcxproj -> D:\ProgrammingAll\for_me\SuperPoject\x64\Debug\game_pract_sp.exe

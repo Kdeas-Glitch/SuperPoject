@@ -15,6 +15,7 @@
 #define RED "\033[31m"
 #define WHITE "\033[0m"
 #define YELLOW "\033[33m"
+#define GREEN "\033[32m"
 #define CHANCE_FOR_DOORS 50
 
 
@@ -55,12 +56,12 @@ union Elements {
 
 struct Room {
 public:
-    int id;
+    int id = 0;
 
     int x;
     int y;
 
-    bool solved;//пройдена ли комната
+    bool solved = false;//пройдена ли комната
 
     bool up = false, down = false, left = false, right = false;//стороны где могут появиться проходы
 
@@ -93,6 +94,8 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
     room->player = player;
 
     room->id = 1;
+
+    map[room->x][room->y] = room;
 
     //присваивание двери через которубю вошли
     if (y == 0)
@@ -129,75 +132,114 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
     else if (room->y == 9)
         room->down = false;
 
+    bool canLeft = true, canRight = true, canUp = true, canDown = true;
+    int countAnotherRooms = 0;
+    if (map[room->x - 1][room->y] != nullptr) {
+        if (map[room->x - 1][room->y]->right == true)
+            room->left = true;
+        else {
+            room->left = false;
+            canLeft = false;
+            countAnotherRooms++;
+        }
+    }
+    if (map[room->x + 1][room->y] != nullptr) {
+        if (map[room->x + 1][room->y]->left == true)
+            room->right = true;
+        else {
+            room->right = false;
+            canRight = false;
+            countAnotherRooms++;
+        }
+    }
+    if (map[room->x][room->y - 1] != nullptr) {
+        if (map[room->x][room->y - 1]->down == true)
+            room->up = true;
+        else {
+            room->up = false;
+            canUp = false;
+            countAnotherRooms++;
+        }
+    }
+    if (map[room->x][room->y + 1] != nullptr) {
+        if (map[room->x][room->y + 1]->up == true)
+            room->down = true;
+        else {
+            room->down = false;
+            canDown = false;
+            countAnotherRooms++;
+        }
+    }
+
     int countDoors = 0;
     if (room->left) countDoors++;
     if (room->right) countDoors++;
     if (room->up) countDoors++;
     if (room->down) countDoors++;
 
-    if (countDoors <= 1) {
+    if (countDoors <= 1 && countAnotherRooms <= 2) {
         int rnd = gen() % 75;
         while (true) {
             if (rnd <= 25) {
                 if (room->left) {
-                    if (room->x == 9) rnd = 50;
+                    if (room->x == 9 || canRight == false) rnd = 50;
                     else room->right = true;
                 }
                 else if (room->right) {
-                    if (room->x == 0) rnd = 50;
+                    if (room->x == 0 || canLeft == false) rnd = 50;
                     else room->left = true;
                 }
                 else if (room->down) {
-                    if (room->y == 0) rnd = 50;
+                    if (room->y == 0 || canUp == false) rnd = 50;
                     else room->up = true;
                 }
                 else if (room->up) {
-                    if (room->y == 9) rnd = 50;
+                    if (room->y == 9 || canDown == false) rnd = 50;
                     else room->down = true;
                 }
             }
             if (rnd > 25 && rnd <= 50) {
                 if (room->left) {
-                    if (room->y == 9) rnd = 75;
+                    if (room->y == 9 || canDown == false) rnd = 75;
                     else room->down = true;
                 }
                 else if (room->right) {
-                    if (room->y == 0) rnd = 75;
+                    if (room->y == 0 || canUp == false) rnd = 75;
                     else room->up = true;
                 }
                 else if (room->down) {
-                    if (room->x == 9) rnd = 75;
+                    if (room->x == 9 || canRight == false) rnd = 75;
                     else room->right = true;
                 }
                 else if (room->up) {
-                    if (room->x == 0) rnd = 75;
+                    if (room->x == 0 || canLeft == false) rnd = 75;
                     else room->left = true;
                 }
             }
             if (rnd > 50) {
                 if (room->left) {
-                    if (room->y == 0) {
+                    if (room->y == 0 || canUp == false) {
                         rnd = 25;
                         continue;
                     }
                     else room->up = true;
                 }
                 else if (room->right) {
-                    if (room->y == 9) {
+                    if (room->y == 9 || canDown == false) {
                         rnd = 25;
                         continue;
                     }
                     else room->down = true;
                 }
                 else if (room->down) {
-                    if (room->x == 0) {
+                    if (room->x == 0 || canLeft == false) {
                         rnd = 25;
                         continue;
                     }
                     else room->left = true;
                 }
                 else if (room->up) {
-                    if (room->x == 9) {
+                    if (room->x == 9 || canRight == false) {
                         rnd = 25;
                         continue;
                     }
@@ -208,26 +250,6 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
         }
     }
 
-    if (map[room->x - 1][room->y] != nullptr) {
-        if (map[room->x - 1][room->y]->right == true)
-            room->left = true;
-        else room->left = false;
-    }
-    if (map[room->x + 1][room->y] != nullptr) {
-        if (map[room->x + 1][room->y]->left == true)
-            room->right = true;
-        else room->right = false;
-    }
-    if (map[room->x][room->y - 1] != nullptr) {
-        if (map[room->x][room->y - 1]->down == true)
-            room->up = true;
-        else room->up = false;
-    }
-    if (map[room->x][room->y + 1] != nullptr) {
-        if (map[room->x][room->y + 1]->up == true)
-            room->down = true;
-        else room->down = false;
-    }
 
     //функция вызова шансов 
     Enemy enemy;
@@ -265,7 +287,8 @@ void PrintPlace(Room* room) {
 
     bool onTrap = false;
 
-    room->place[room->elements[0].enemy.x][room->elements[0].enemy.y] = ID_ENEMY;
+    if (room->elements[0].enemy.health >0)
+        room->place[room->elements[0].enemy.x][room->elements[0].enemy.y] = ID_ENEMY;
     
     room->place[room->elements[1].chest.x][room->elements[1].chest.y] = ID_CHEST;
 
@@ -311,8 +334,12 @@ void PrintPlace(Room* room) {
                 std::cout << (char)127 << " ";
             else if (room->place[j][i] == ID_WALL)
                 std::cout << (char)254 << " ";
-            else if (room->place[j][i] == ID_DOOR)
-                std::cout << RED << (char)254 << WHITE << " ";
+            else if (room->place[j][i] == ID_DOOR) {
+                if (room->solved)
+                    std::cout << GREEN << (char)254 << WHITE << " ";
+                else
+                    std::cout << RED << (char)254 << WHITE << " ";
+            }
             else if (room->place[j][i] == ID_ENEMY)
                 std::cout << RED << (char)253 << WHITE << " ";
             else if (room->place[j][i] == ID_PLAYER) {
@@ -330,14 +357,28 @@ void PrintPlace(Room* room) {
     std::cout << std::endl;
     std::cout << std::endl;
 
+    //for (int i = 0; i < 10; i++) {
+    //    for (int j = 0; j < 10; j++) {
+    //        std::cout << room->place[j][i] << " ";
+    //    }
+    //    std::cout << std::endl;
+    //}
+
+    std::cout << "hp player - " << room->player->hp << std::endl;
+    std::cout << "enemy player - " << room->elements[0].enemy.health << std::endl;
+
+    std::cout << std::endl;
+    std::cout << std::endl;
+
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            std::cout << room->place[j][i] << " ";
+            if (map[j][i] != nullptr) {
+                std::cout << map[j][i]->id << " ";
+            }
+            else std::cout << 0 << " ";
         }
         std::cout << std::endl;
     }
-
-    std::cout << "hp player - " << room->player->hp << std::endl;
 
 }
 
@@ -348,7 +389,8 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
     Enemy* enemy = &room->elements[0].enemy;
     Player* player = room->player;
 
-    while (true) {
+    while (enemy->health >0) {
+
         if (player->x < enemy->x) {
             if (player->x != enemy->x - 1 || player->y != enemy->y) 
                 enemy->x--;
@@ -369,10 +411,23 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
         Sleep(700);
     }
     
+    room->solved = true;
 
     return 0;
 }
 
+DWORD WINAPI EnemyThread(LPVOID _room) {
+    HANDLE hEvent;
+    hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"FightEvent");
+    if (hEvent == NULL)
+        return GetLastError();
+
+    WaitForSingleObject(hEvent, INFINITE);
+
+    Room* room = (Room*)_room;
+
+    room->elements[0].enemy.health = 0;
+}
 
 int main()
 {
@@ -396,160 +451,218 @@ int main()
     startRoom.y = 4;
 
     map[startRoom.x][startRoom.y] = &startRoom;
-    Room rm;
-    //rm.left = true;
-    rm.x = 5;
-    rm.y = 4;
-    map[rm.x][rm.y] = &rm;
 
     GenerateRoom(&startRoom, startRoom.player ,4,9);
-    //startRoom.left = true;
-    /*startRoom.right = true;
+    startRoom.left = true;
+    startRoom.right = true;
     startRoom.down = true;
-    startRoom.up = true;*/
+    startRoom.up = true;
 
     /*for (int i = 0; i < 256; i++) {
         char s = i;
         std::cout << s << " - " << i << std::endl;
     }*/
-
-    HANDLE hThread;
-    DWORD IDThread;
-
-    hThread = CreateThread(NULL, 0, EnemyGameplay, &startRoom, NULL, &IDThread);
-    if (hThread == NULL)
-        return GetLastError();
-
+    Room* playingRoom = &startRoom;
+    int x = 0, y = 0;
     while (true) {
-        PrintPlace(&startRoom);
 
-        if (_kbhit() == 1) {
-            switch (_getch()) {
-            case 'w':
-                switch (startRoom.place[startRoom.player->x][startRoom.player->y - 1]) {
-                case 0:
-                    startRoom.player->y--;
-                    break;
-                case ID_ENEMY:
-                    PulseEvent(hEvent[0]);
-                    break;
-                case ID_CHEST:
-                    PulseEvent(hEvent[1]);
-                    break;
-                case ID_DOOR:
-                    PulseEvent(hEvent[2]);
-                    break;
-                case ID_TRAP:
-                    PulseEvent(hEvent[3]);
-                    startRoom.player->y--;
+        if (playingRoom->id != 1)
+            GenerateRoom(playingRoom, &player, x, y);
 
-                    for (int i = 2; i < 5; i++) {
-                        if (startRoom.elements[i].trap.id == ID_TRAP && startRoom.place[startRoom.elements[i].trap.x][startRoom.elements[i].trap.y] == startRoom.place[startRoom.player->x][startRoom.player->y]) {
-                            startRoom.player->hp -= startRoom.elements[i].trap.damage;
-                            break;
+        HANDLE hThreads[2];
+        DWORD IDThreads[2];
+
+        hThreads[0] = CreateThread(NULL, 0, EnemyGameplay, playingRoom, NULL, &IDThreads[0]);
+        if (hThreads[0] == NULL)
+            return GetLastError();
+
+        hThreads[1] = CreateThread(NULL, 0, EnemyThread, playingRoom, NULL, &IDThreads[1]);
+        if (hThreads[1] == NULL)
+            return GetLastError();
+
+        bool solvedRoom = false;
+        while (solvedRoom != true) {
+            PrintPlace(playingRoom);
+
+            if (_kbhit() == 1) {
+                switch (_getch()) {
+                case 'w':
+                    switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y - 1]) {
+                    case 0:
+                        playingRoom->player->y--;
+                        break;
+                    case ID_ENEMY:
+                        PulseEvent(hEvent[0]);
+                        break;
+                    case ID_CHEST:
+                        PulseEvent(hEvent[1]);
+                        break;
+                    case ID_DOOR:
+                        if (playingRoom->solved == true) {
+                            solvedRoom = true;
+                            Room rm;
+                            if (map[playingRoom->x][playingRoom->y - 1] != nullptr) {
+                                rm = *map[playingRoom->x][playingRoom->y - 1];
+                            }
+                            x = playingRoom->player->x;
+                            y = playingRoom->player->y - 1;
+                            rm.player = playingRoom->player;
+                            rm.player->y = playingRoom->player->y + 7;
+                            rm.x = playingRoom->x;
+                            rm.y = playingRoom->y - 1;
+                            playingRoom = &rm;
                         }
+                        break;
+                    case ID_TRAP:
+                        PulseEvent(hEvent[3]);
+                        playingRoom->player->y--;
+
+                        for (int i = 2; i < 5; i++) {
+                            if (startRoom.elements[i].trap.id == ID_TRAP && startRoom.place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    break;
+                case 's':
+                    switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y + 1]) {
+                    case 0:
+                        playingRoom->player->y++;
+                        break;
+                    case ID_ENEMY:
+                        PulseEvent(hEvent[0]);
+                        break;
+                    case ID_CHEST:
+                        PulseEvent(hEvent[1]);
+                        break;
+                    case ID_DOOR:
+                        if (playingRoom->solved == true) {
+                            solvedRoom = true;
+                            Room rm;
+                            if (map[playingRoom->x][playingRoom->y + 1] != nullptr) {
+                                rm = *map[playingRoom->x][playingRoom->y + 1];
+                            }
+                            x = playingRoom->player->x;
+                            y = playingRoom->player->y + 1;
+                            rm.player = playingRoom->player;
+                            rm.player->y = playingRoom->player->y - 7;
+                            rm.x = playingRoom->x;
+                            rm.y = playingRoom->y + 1;
+                            playingRoom = &rm;
+                        }
+                        break;
+                    case ID_TRAP:
+                        PulseEvent(hEvent[3]);
+                        playingRoom->player->y++;
+
+                        for (int i = 2; i < 5; i++) {
+                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    break;
+                case 'a':
+                    switch (playingRoom->place[playingRoom->player->x - 1][playingRoom->player->y]) {
+                    case 0:
+                        playingRoom->player->x--;
+                        break;
+                    case ID_ENEMY:
+                        PulseEvent(hEvent[0]);
+                        break;
+                    case ID_CHEST:
+                        PulseEvent(hEvent[1]);
+                        break;
+                    case ID_DOOR:
+                        if (playingRoom->solved == true) {
+                            solvedRoom = true;
+                            Room rm;
+                            if (map[playingRoom->x - 1][playingRoom->y] != nullptr) {
+                                rm = *map[playingRoom->x - 1][playingRoom->y];
+                            }
+                            x = playingRoom->player->x - 1;
+                            y = playingRoom->player->y;
+                            rm.player = playingRoom->player;
+                            rm.player->x = playingRoom->player->x + 7;
+                            rm.x = playingRoom->x - 1;
+                            rm.y = playingRoom->y;
+                            playingRoom = &rm;
+                        }
+                        break;
+                    case ID_TRAP:
+                        PulseEvent(hEvent[3]);
+                        playingRoom->player->x--;
+
+                        for (int i = 2; i < 5; i++) {
+                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    break;
+                case 'd':
+                    switch (playingRoom->place[playingRoom->player->x + 1][playingRoom->player->y]) {
+                    case 0:
+                        playingRoom->player->x++;
+                        break;
+                    case ID_ENEMY:
+                        PulseEvent(hEvent[0]);
+                        break;
+                    case ID_CHEST:
+                        PulseEvent(hEvent[1]);
+                        break;
+                    case ID_DOOR:
+                        if (playingRoom->solved == true) {
+                            solvedRoom = true;
+                            Room rm;
+                            if (map[playingRoom->x + 1][playingRoom->y] != nullptr) {
+                                rm = *map[playingRoom->x + 1][playingRoom->y];
+                            }
+                            x = playingRoom->player->x + 1;
+                            y = playingRoom->player->y;
+                            rm.player = playingRoom->player;
+                            rm.player->x = playingRoom->player->x - 7;
+                            rm.x = playingRoom->x + 1;
+                            rm.y = playingRoom->y;
+                            playingRoom = &rm;
+                        }
+                        break;
+                    case ID_TRAP:
+                        PulseEvent(hEvent[3]);
+                        playingRoom->player->x++;
+
+                        for (int i = 2; i < 5; i++) {
+                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                break;
+                            }
+                        }
+
+                        break;
                     }
 
                     break;
                 }
-
-                break;
-            case 's':
-                switch (startRoom.place[startRoom.player->x][startRoom.player->y + 1]) {
-                case 0:
-                    startRoom.player->y++;
-                    break;
-                case ID_ENEMY:
-                    PulseEvent(hEvent[0]);
-                    break;
-                case ID_CHEST:
-                    PulseEvent(hEvent[1]);
-                    break;
-                case ID_DOOR:
-                    PulseEvent(hEvent[2]);
-                    break;
-                case ID_TRAP:
-                    PulseEvent(hEvent[3]);
-                    startRoom.player->y++;
-
-                    for (int i = 2; i < 5; i++) {
-                        if (startRoom.elements[i].trap.id == ID_TRAP && startRoom.place[startRoom.elements[i].trap.x][startRoom.elements[i].trap.y] == startRoom.place[startRoom.player->x][startRoom.player->y]) {
-                            startRoom.player->hp -= startRoom.elements[i].trap.damage;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-
-                break;
-            case 'a':
-                switch (startRoom.place[startRoom.player->x - 1][startRoom.player->y]) {
-                case 0:
-                    startRoom.player->x--;
-                    break;
-                case ID_ENEMY:
-                    PulseEvent(hEvent[0]);
-                    break;
-                case ID_CHEST:
-                    PulseEvent(hEvent[1]);
-                    break;
-                case ID_DOOR:
-                    PulseEvent(hEvent[2]);
-                    break;
-                case ID_TRAP:
-                    PulseEvent(hEvent[3]);
-                    startRoom.player->x--;
-                    
-                    for (int i = 2; i < 5; i++) {
-                        if (startRoom.elements[i].trap.id == ID_TRAP && startRoom.place[startRoom.elements[i].trap.x][startRoom.elements[i].trap.y] == startRoom.place[startRoom.player->x][startRoom.player->y]) {
-                            startRoom.player->hp -= startRoom.elements[i].trap.damage;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-
-                break;
-            case 'd':
-                switch (startRoom.place[startRoom.player->x + 1][startRoom.player->y]) {
-                case 0:
-                    startRoom.player->x++;
-                    break;
-                case ID_ENEMY:
-                    PulseEvent(hEvent[0]);
-                    break;
-                case ID_CHEST:
-                    PulseEvent(hEvent[1]);
-                    break;
-                case ID_DOOR:
-                    PulseEvent(hEvent[2]);
-                    break;
-                case ID_TRAP:
-                    PulseEvent(hEvent[3]);
-                    startRoom.player->x++;
-
-                    for (int i = 2; i < 5; i++) {
-                        if (startRoom.elements[i].trap.id == ID_TRAP && startRoom.place[startRoom.elements[i].trap.x][startRoom.elements[i].trap.y] == startRoom.place[startRoom.player->x][startRoom.player->y]) {
-                            startRoom.player->hp -= startRoom.elements[i].trap.damage;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-
-                break;
             }
+
+            Sleep(200);
+
+
+            system("cls");
         }
-
-        Sleep(200);
-
-
-        system("cls");
     }
-
 
 }
 
