@@ -337,7 +337,7 @@ void PrintPlace(Room* room) {
                 std::cout << (char)254 << " ";
             else if (room->place[j][i] == ID_DOOR) {
                 if (room->solved)
-                    std::cout << GREEN << (char)254 << WHITE << " ";
+                    std::cout << GREEN << (char)255 << WHITE << " ";
                 else
                     std::cout << RED << (char)254 << WHITE << " ";
             }
@@ -435,8 +435,7 @@ int main()
     HANDLE hEvent[4];
     hEvent[0] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"FightEvent");
     hEvent[1] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"ChestEvent");
-    hEvent[2] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"TrapEvent");
-    if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL)
+    if (hEvent[0] == NULL || hEvent[1] == NULL)
         return GetLastError();
 
     Room startRoom;
@@ -521,7 +520,6 @@ int main()
                         }
                         break;
                     case ID_TRAP:
-                        PulseEvent(hEvent[3]);
                         playingRoom->player->y--;
 
                         for (int i = 2; i < 5; i++) {
@@ -567,7 +565,6 @@ int main()
                         }
                         break;
                     case ID_TRAP:
-                        PulseEvent(hEvent[3]);
                         playingRoom->player->y++;
 
                         for (int i = 2; i < 5; i++) {
@@ -613,7 +610,6 @@ int main()
                         }
                         break;
                     case ID_TRAP:
-                        PulseEvent(hEvent[3]);
                         playingRoom->player->x--;
 
                         for (int i = 2; i < 5; i++) {
@@ -659,7 +655,6 @@ int main()
                         }
                         break;
                     case ID_TRAP:
-                        PulseEvent(hEvent[3]);
                         playingRoom->player->x++;
 
                         for (int i = 2; i < 5; i++) {
