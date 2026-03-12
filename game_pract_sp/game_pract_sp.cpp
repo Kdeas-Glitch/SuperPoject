@@ -19,6 +19,8 @@
 #define CHANCE_FOR_DOORS 50
 
 
+volatile int countRooms = 0;
+
 struct Player {
     int x;
     int y;
@@ -90,10 +92,9 @@ void GenerateChest() {
 //макет генерации
 void GenerateRoom(Room* room, Player* player, int x, int y) {
 
+    room->id = countRooms;
 
     room->player = player;
-
-    room->id = 1;
 
     map[room->x][room->y] = room;
 
@@ -435,8 +436,7 @@ int main()
     hEvent[0] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"FightEvent");
     hEvent[1] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"ChestEvent");
     hEvent[2] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"TrapEvent");
-    hEvent[3] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"DoorEvent");
-    if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL || hEvent[3] == NULL)
+    if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL)
         return GetLastError();
 
     Room startRoom;
@@ -449,6 +449,9 @@ int main()
 
     startRoom.x = 4;
     startRoom.y = 4;
+
+    startRoom.id = 1;
+    countRooms++;
 
     map[startRoom.x][startRoom.y] = &startRoom;
 
@@ -466,7 +469,7 @@ int main()
     int x = 0, y = 0;
     while (true) {
 
-        if (playingRoom->id != 1)
+        if (playingRoom->id == 0)
             GenerateRoom(playingRoom, &player, x, y);
 
         HANDLE hThreads[2];
@@ -506,6 +509,7 @@ int main()
                             }
                             else {
                                 rm = new Room;
+                                countRooms++;
                             }
                             x = playingRoom->player->x;
                             y = playingRoom->player->y - 1;
@@ -549,7 +553,10 @@ int main()
                             if (map[playingRoom->x][playingRoom->y + 1] != nullptr) {
                                 rm = map[playingRoom->x][playingRoom->y + 1];
                             }
-                            else rm = new Room;
+                            else {
+                                rm = new Room;
+                                countRooms++;
+                            }
                             x = playingRoom->player->x;
                             y = playingRoom->player->y + 1;
                             rm->player = playingRoom->player;
@@ -592,7 +599,10 @@ int main()
                             if (map[playingRoom->x - 1][playingRoom->y] != nullptr) {
                                 rm = map[playingRoom->x - 1][playingRoom->y];
                             }
-                            else rm = new Room;
+                            else {
+                                rm = new Room;
+                                countRooms++;
+                            }
                             x = playingRoom->player->x - 1;
                             y = playingRoom->player->y;
                             rm->player = playingRoom->player;
@@ -635,7 +645,10 @@ int main()
                             if (map[playingRoom->x + 1][playingRoom->y] != nullptr) {
                                 rm = map[playingRoom->x + 1][playingRoom->y];
                             }
-                            else rm = new Room;
+                            else {
+                                rm = new Room;
+                                countRooms++;
+                            }
                             x = playingRoom->player->x + 1;
                             y = playingRoom->player->y;
                             rm->player = playingRoom->player;
@@ -668,6 +681,9 @@ int main()
 
             system("cls");
         }
+
+        CloseHandle(hThreads[0]);
+        CloseHandle(hThreads[1]);
     }
 
 }
