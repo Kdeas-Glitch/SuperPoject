@@ -500,17 +500,20 @@ int main()
                     case ID_DOOR:
                         if (playingRoom->solved == true) {
                             solvedRoom = true;
-                            Room rm;
+                            Room *rm;
                             if (map[playingRoom->x][playingRoom->y - 1] != nullptr) {
-                                rm = *map[playingRoom->x][playingRoom->y - 1];
+                                rm = map[playingRoom->x][playingRoom->y - 1];
+                            }
+                            else {
+                                rm = new Room;
                             }
                             x = playingRoom->player->x;
                             y = playingRoom->player->y - 1;
-                            rm.player = playingRoom->player;
-                            rm.player->y = playingRoom->player->y + 7;
-                            rm.x = playingRoom->x;
-                            rm.y = playingRoom->y - 1;
-                            playingRoom = &rm;
+                            rm->player = playingRoom->player;
+                            rm->player->y = playingRoom->player->y + 7;
+                            rm->x = playingRoom->x;
+                            rm->y = playingRoom->y - 1;
+                            playingRoom = rm;
                         }
                         break;
                     case ID_TRAP:
@@ -542,17 +545,18 @@ int main()
                     case ID_DOOR:
                         if (playingRoom->solved == true) {
                             solvedRoom = true;
-                            Room rm;
+                            Room* rm;
                             if (map[playingRoom->x][playingRoom->y + 1] != nullptr) {
-                                rm = *map[playingRoom->x][playingRoom->y + 1];
+                                rm = map[playingRoom->x][playingRoom->y + 1];
                             }
+                            else rm = new Room;
                             x = playingRoom->player->x;
                             y = playingRoom->player->y + 1;
-                            rm.player = playingRoom->player;
-                            rm.player->y = playingRoom->player->y - 7;
-                            rm.x = playingRoom->x;
-                            rm.y = playingRoom->y + 1;
-                            playingRoom = &rm;
+                            rm->player = playingRoom->player;
+                            rm->player->y = playingRoom->player->y - 7;
+                            rm->x = playingRoom->x;
+                            rm->y = playingRoom->y + 1;
+                            playingRoom = rm;
                         }
                         break;
                     case ID_TRAP:
@@ -584,17 +588,18 @@ int main()
                     case ID_DOOR:
                         if (playingRoom->solved == true) {
                             solvedRoom = true;
-                            Room rm;
+                            Room *rm;
                             if (map[playingRoom->x - 1][playingRoom->y] != nullptr) {
-                                rm = *map[playingRoom->x - 1][playingRoom->y];
+                                rm = map[playingRoom->x - 1][playingRoom->y];
                             }
+                            else rm = new Room;
                             x = playingRoom->player->x - 1;
                             y = playingRoom->player->y;
-                            rm.player = playingRoom->player;
-                            rm.player->x = playingRoom->player->x + 7;
-                            rm.x = playingRoom->x - 1;
-                            rm.y = playingRoom->y;
-                            playingRoom = &rm;
+                            rm->player = playingRoom->player;
+                            rm->player->x = playingRoom->player->x + 7;
+                            rm->x = playingRoom->x - 1;
+                            rm->y = playingRoom->y;
+                            playingRoom = rm;
                         }
                         break;
                     case ID_TRAP:
@@ -626,17 +631,18 @@ int main()
                     case ID_DOOR:
                         if (playingRoom->solved == true) {
                             solvedRoom = true;
-                            Room rm;
+                            Room *rm;
                             if (map[playingRoom->x + 1][playingRoom->y] != nullptr) {
-                                rm = *map[playingRoom->x + 1][playingRoom->y];
+                                rm = map[playingRoom->x + 1][playingRoom->y];
                             }
+                            else rm = new Room;
                             x = playingRoom->player->x + 1;
                             y = playingRoom->player->y;
-                            rm.player = playingRoom->player;
-                            rm.player->x = playingRoom->player->x - 7;
-                            rm.x = playingRoom->x + 1;
-                            rm.y = playingRoom->y;
-                            playingRoom = &rm;
+                            rm->player = playingRoom->player;
+                            rm->player->x = playingRoom->player->x - 7;
+                            rm->x = playingRoom->x + 1;
+                            rm->y = playingRoom->y;
+                            playingRoom = rm;
                         }
                         break;
                     case ID_TRAP:
