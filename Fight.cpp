@@ -8,16 +8,16 @@
 #include <iomanip>
 using namespace std;
 const string SLIME[] = {
-"                         **************             ",
-"                     //*******************\\\             ",
-"                    /**                   **\\*             ",
-"                   *//                        **\\            ",
-"                  *//                            \\* ",
-"                 */      |||_         *||_        \\*             ",
-"                */       ||||    ||___|||||^       \\*             ",
-"               */         *\||||||||||/*             \\*             ",
-"              */*           ********/*               \\*             ",
-"              /*          ***      ***               \\*             ",
+"                         **************                                 ",
+"                     //*******************\\\                             ",
+"                    /**                   **\\*                          ",
+"                   *//                        **\\                       ",
+"                  *//                            \\*                     ",
+"                 */      |||_         *||_        \\*                    ",
+"                */       ||||    ||___|||||^       \\*                   ",
+"               */         *\||||||||||/*             \\*                 ",
+"              */*           ********/*               \\*                 ",
+"              /*          ***      ***               \\*                 ",
 "             /*          ||||\___/||||                \\*             ",
 "             |           \|||||||||/                  \\*             ",
 "            /|                                       ||             ",
@@ -33,54 +33,57 @@ const string SLIME[] = {
 "               \|||||||||||||||||||||||||||||||////",
 "                  *\\\||||||||||||||||||||||/*",
 };
-const string CYCLOP = R"(
-                       _______________
-                   .-'               '-.
-                 .'                     '.
-                /                         \
-               |          _____            |
-               |        .'     '.          |
-               |       /   _     \         |
-               |      |   (_)     |        |
-               |      |           |        |
-               |       \         /         |
-               |        '._   _.'          |
-               |           '-'             |
-               |      _____________        |
-               |    / | | | | | | | \      |
-               |   |  |_|_|_|_|_|_|  |     |
-               |    \_______________/      |
-                \                          /
-                 '.                      .'
-                   '-.                .-'
-                      '-..........-'
-)";
-//const string ANTMAN = R"(
-//                          ______________
-//                      .-'               '-.
-//                    .'    _         _      '.
-//                   /    .' '.     .' '.      \
-//                  |    /      \   /      \    |
-//                  |   |   O    | |    O   |   |
-//                  |    \      /   \      /    |
-//                   \    '.__.'     '.__.'    /
-//                    '.         ___         .'
-//                      '-.__   /   \   __.-'
-//                           \ |     | /
-//                            \|     |/
-//                          ___|     |___
-//                         /   |     |   \
-//                        /    |     |    \
-//                       /     |     |     \
-//                      /      |     |      \
-//                     '       |     |       '
-//)";
+const string CYCLOP[] = {
+"                       _______________                    ",
+"                   .-'               '-.                  ",
+"                 .'                     '.                ",
+"                /                         \\               ",
+"               |          _____             |             ",
+"               |        .'     '.           |             ",
+"               |       /   _     \\         |             ",
+"               |      |   (_)     |         |             ",
+"               |      |           |         |             ",
+"               |       \\         /         |             ",
+"               |        '._   _.'           |             ",
+"               |           '-'              |             ",
+"               |      _____________         |             ",
+"               |    / | | | | | | | \\      |             ",
+"               |   |  |_|_|_|_|_|_|  |      |             ",
+"               |    \\_______________/      |             ",
+"                \\                         /              ",
+"                 '.                      .'               ",
+"                   '-.              ....-'                ",
+"                      '-..........-'                      ",
+};
+const string ANTMAN[] = {
+"                                                                      ",
+"                                                                      ",
+"                                                                      ",
+"                          ______________                              ",
+"                      .-'               '-.                          ",
+"                    .'    _           _    '.                        ",
+"                   /    .' '.       .' '.    \\                       ",
+"                  |    /      \\   /      \\  |                      ",
+"                  |   |   O    | |    O   |   |                      ",
+"                  |    \\      /   \\      /  |                      ",
+"                   \\    '.__.'     '.__.'    /                      ",
+"                    '.         ___         .'                        ",
+"                      '-.__   /   \\   __.-'              ",
+"                           \\ |     | /                   ",
+"                            \\|     |/                    ",
+"                          ___|     |___                  ",
+"                         /   |     |   \\                 ",
+"                        /    |     |    \\                ",
+"                       /     |     |     \\               ",
+"                      /      |     |      \\              ",
+"                     '       |     |       '             ",
+};
 struct Player
 {
     int x=5;
     int y=5;
-    int hp= 100;
-    int power = 13;
+    int hp= 1000;
+    int power = 23;
     int armor = 51; // резист от атаки при защите
     int intellect= 22; // шанс крита
     int countOfHeal = 7;
@@ -208,31 +211,108 @@ int main()
         "Сила: " + to_string(enemy.power),
         "Интеллект: " + to_string(enemy.chanceOfCrit)
     };
+    string linesPlayer[] = {
+        "ИГРОК",
+        "Характеристики врага:",
+        "HP: " + to_string(player.hp),
+        "Сила: " + to_string(player.power),
+        "Интеллект: " + to_string(player.intellect)
+    };
     int count = 5;
-    int linesCount = 25;
-    int maxLines = max(linesCount,count);
+    int countPlayer = 5;
+    int linesCount = 23;
+    int maxLines = max(max(linesCount, count), countPlayer);
     
     
     if (enemy.name == "Слайм") {
+        linesCount = 23;
         for (int i = 0; i < maxLines; i++) {
             if (i < linesCount) {
-                cout << setw(90) << left << SLIME[i];
+                cout << setw(40) << left << SLIME[i];
             }
             else {
-                cout << setw(90) << left << " ";
+                cout << setw(40) << left << " ";
             }
+            
             if (i < count) {
-                cout << lines[i];
+                cout << setw(21) << left << lines[i];
             }
+            else {
+                cout << setw(21) << left << " ";
+            }
+            cout << "    ";
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << linesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
             cout << endl;
         }
     }
     if (enemy.name == "Циклоп") {
-        cout << CYCLOP;
+        linesCount = 20;
+        for (int i = 0; i < maxLines; i++) {
+           
+            if (i < linesCount) {
+                cout << setw(20) << left << CYCLOP[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+          
+            if (i < count) {
+                cout << setw(25) << left << lines[i];  
+            }
+            else {
+                cout << setw(25) << left << " ";
+            }
+
+          
+            if (i < countPlayer) {
+                cout << setw(20) << left << linesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+        
     }
-    /*if (enemy.name == "Человек-Муравей") {
-        cout << ANTMAN;
-    }*/
+    if (enemy.name == "Человек-Муравей") {
+        linesCount = 20;
+        for (int i = 0; i < maxLines; i++) {
+
+            if (i < linesCount) {
+                cout << setw(20) << left << ANTMAN[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+
+            if (i < count) {
+                cout << setw(21) << left << lines[i];
+            }
+            else {
+                cout << setw(21) << left << " ";
+            }
+
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << linesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
     DWORD IDThread;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Fight, &data, NULL, &IDThread);
     if (hThread == NULL) 
@@ -254,18 +334,20 @@ int main()
             }
     }
     
+    ofstream fout("data.txt");
+    if (fout.is_open()) {
+        fout << player.hp << endl;
+        fout << player.power << endl;
+        fout << player.armor << endl;
+        fout << player.intellect << endl;
+        fout << player.countOfHeal << endl;
+        fout << player.difficultyMultyplier << endl;
+        fout.close();
+        std::cout << "Файл успешно записан." << std::endl;
+    }
+
     if (player.hp <= 0 && !isFight) {
-        ofstream fout("data.txt");
-        if (fout.is_open()) {
-            fout << player.hp << endl;
-            fout << player.power << endl;
-            fout << player.armor << endl;
-            fout << player.intellect << endl;
-            fout << player.countOfHeal << endl;
-            fout << player.difficultyMultyplier << endl;
-            fout.close();
-            std::cout << "Файл успешно записан." << std::endl;
-        }
+        
         while (true) {
             if (_getch() != NULL) {
                 TerminateProcess(GetCurrentProcess(), 1);
