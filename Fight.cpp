@@ -59,24 +59,24 @@ const string ANTMAN[] = {
 "                                                                      ",
 "                                                                      ",
 "                                                                      ",
-"                          ______________                              ",
-"                      .-'               '-.                          ",
-"                    .'    _           _    '.                        ",
-"                   /    .' '.       .' '.    \\                       ",
-"                  |    /      \\   /      \\  |                      ",
-"                  |   |   O    | |    O   |   |                      ",
-"                  |    \\      /   \\      /  |                      ",
-"                   \\    '.__.'     '.__.'    /                      ",
-"                    '.         ___         .'                        ",
-"                      '-.__   /   \\   __.-'              ",
-"                           \\ |     | /                   ",
-"                            \\|     |/                    ",
-"                          ___|     |___                  ",
-"                         /   |     |   \\                 ",
-"                        /    |     |    \\                ",
-"                       /     |     |     \\               ",
-"                      /      |     |      \\              ",
-"                     '       |     |       '             ",
+"                       ______________                                 ",
+"                   .-'               '-.                              ",
+"                 .'    _           _    '.                            ",
+"                /    .' '.       .' '.    \\                       ",
+"               |    /      \\   /      \\   |                      ",
+"               |   |   O    | |    O   |  |                      ",
+"               |    \\      /   \\      /   |                      ",
+"                \\    '.__.'     '.__.'   /                      ",
+"                 '.         ___         .'                        ",
+"                   '-.__   /   \\   __.-'              ",
+"                       \\ |     | /                   ",
+"                        \\|     |/                    ",
+"                       ___|     |___                  ",
+"                     /   |     |   \\                 ",
+"                    /    |     |    \\                ",
+"                   /     |     |     \\               ",
+"                  /      |     |      \\              ",
+"                 '       |     |        '             ",
 };
 struct Player
 {
@@ -91,10 +91,10 @@ struct Player
 }; 
 struct Enemy
 {
-    string name = "Слайм";
+    string name = "Человек-Муравей";
     int x=5;
     int y=5;
-    int hp = 100;
+    int hp = 1000;
     int power = 28;
     int armor = 7;
     int chanceOfCrit = 10;
@@ -103,6 +103,126 @@ struct Data { // структура для передачи в поток Fight
     Enemy* en;
     Player* pl;
 };
+string lines[5] = {
+"",
+"",
+"",
+"",
+""
+};
+void UpdateInterface(Enemy& enemy, Player& player, string linesPlayer[]) {
+    system("cls");
+
+    
+    string lines[5] = {
+        "ВРАГ: " + enemy.name,
+        "Характеристики врага:",
+        "HP: " + to_string(enemy.hp),
+        "Сила: " + to_string(enemy.power),
+        "Шанс крита: " + to_string(enemy.chanceOfCrit)
+    };
+
+   
+    string updatedLinesPlayer[5] = {
+        "ИГРОК",
+        "Характеристики игрока:",
+        "HP: " + to_string(player.hp),
+        "Сила: " + to_string(player.power),
+        "Интеллект: " + to_string(player.intellect)
+    };
+
+    int count = 5;
+    int countPlayer = 5;
+    int maxLines = 23;
+
+    if (enemy.name == "Слайм") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 23) {
+                cout << setw(40) << left << SLIME[i];
+            }
+            else {
+                cout << setw(40) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(21) << left << lines[i];
+            }
+            else {
+                cout << setw(21) << left << " ";
+            }
+            cout << "    ";
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+    else if (enemy.name == "Циклоп") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 20) {
+                cout << setw(20) << left << CYCLOP[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(25) << left << lines[i];
+            }
+            else {
+                cout << setw(25) << left << " ";
+            }
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+    else if (enemy.name == "Человек-Муравей") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 20) {
+                cout << setw(40) << left << ANTMAN[i];
+            }
+            else {
+                cout << setw(40) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(28) << left << lines[i];
+            }
+            else {
+                cout << setw(28) << left << " ";
+            }
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+
+    cout << "\nУправление: 1 - Атака | 2 - Защита | 3 - Лечение\n";
+    if (player.hp <= 0) {
+        cout << "Вы проиграли\n";
+    }
+    else if (enemy.hp <= 0) {
+        cout << "Вы победили\n";
+    }
+}
 bool isFight = true;
 DWORD WINAPI Fight(LPVOID lpParam) {
     srand(time(0));
@@ -114,8 +234,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
     e->power *= p->difficultyMultyplier;
     e->chanceOfCrit *= p->difficultyMultyplier;
     
-    cout << "ВРАГ: " << e->name << endl << "Характеристики врага:\n" << p->hp << "\n" << p->power << "\n" << p->intellect << endl;
-    cout << "Статы врага:\n" << e->hp << "\n" << e->power << "\n" << e->chanceOfCrit << endl;
+    
     HANDLE eAttack = OpenEvent(EVENT_ALL_ACCESS,FALSE,L"eAttack");
     HANDLE eDefend = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"eDefend");
     HANDLE eHeal = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"eHeal");
@@ -136,7 +255,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
         }
         // event не занят - по кнопке бьем/защищаемся/лечимся
         if (WaitForSingleObject(eAttack, 0) != WAIT_TIMEOUT) { 
-            
+            Sleep(200);
             cout << "Удар\n";
             int chanceCritPlayer = rand() % 100;
             int dmgPlayer = p->power;
@@ -152,7 +271,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
                 cout << "Крит у врага\n";
             }
             p->hp -=dmgEnemy;
-            cout << "Хп игрока: " << p->hp <<"\nХп врага: " << e->hp << endl;
+
             ResetEvent(eAttack);
         }
        
@@ -204,122 +323,22 @@ int main()
     
     data.en = &enemy;
     data.pl = &player;
-    string lines[] = {
-        "ВРАГ: " + enemy.name,
-        "Характеристики врага:",
-        "HP: " + to_string(enemy.hp),
-        "Сила: " + to_string(enemy.power),
-        "Интеллект: " + to_string(enemy.chanceOfCrit)
-    };
-    string linesPlayer[] = {
+
+    DWORD IDThread;
+    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Fight, &data, NULL, &IDThread);
+    if (hThread == NULL) 
+        return GetLastError();
+
+    string linesPlayer[5] = {
         "ИГРОК",
         "Характеристики врага:",
         "HP: " + to_string(player.hp),
         "Сила: " + to_string(player.power),
         "Интеллект: " + to_string(player.intellect)
     };
-    int count = 5;
-    int countPlayer = 5;
-    int linesCount = 23;
-    int maxLines = max(max(linesCount, count), countPlayer);
-    
-    
-    if (enemy.name == "Слайм") {
-        linesCount = 23;
-        for (int i = 0; i < maxLines; i++) {
-            if (i < linesCount) {
-                cout << setw(40) << left << SLIME[i];
-            }
-            else {
-                cout << setw(40) << left << " ";
-            }
-            
-            if (i < count) {
-                cout << setw(21) << left << lines[i];
-            }
-            else {
-                cout << setw(21) << left << " ";
-            }
-            cout << "    ";
-
-            if (i < countPlayer) {
-                cout << setw(20) << left << linesPlayer[i];
-            }
-            else {
-                cout << setw(20) << left << " ";
-            }
-
-            cout << endl;
-        }
-    }
-    if (enemy.name == "Циклоп") {
-        linesCount = 20;
-        for (int i = 0; i < maxLines; i++) {
-           
-            if (i < linesCount) {
-                cout << setw(20) << left << CYCLOP[i];
-            }
-            else {
-                cout << setw(20) << left << " ";
-            }
-
-          
-            if (i < count) {
-                cout << setw(25) << left << lines[i];  
-            }
-            else {
-                cout << setw(25) << left << " ";
-            }
-
-          
-            if (i < countPlayer) {
-                cout << setw(20) << left << linesPlayer[i];
-            }
-            else {
-                cout << setw(20) << left << " ";
-            }
-
-            cout << endl;
-        }
-        
-    }
-    if (enemy.name == "Человек-Муравей") {
-        linesCount = 20;
-        for (int i = 0; i < maxLines; i++) {
-
-            if (i < linesCount) {
-                cout << setw(20) << left << ANTMAN[i];
-            }
-            else {
-                cout << setw(20) << left << " ";
-            }
-
-
-            if (i < count) {
-                cout << setw(21) << left << lines[i];
-            }
-            else {
-                cout << setw(21) << left << " ";
-            }
-
-
-            if (i < countPlayer) {
-                cout << setw(20) << left << linesPlayer[i];
-            }
-            else {
-                cout << setw(20) << left << " ";
-            }
-
-            cout << endl;
-        }
-    }
-    DWORD IDThread;
-    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Fight, &data, NULL, &IDThread);
-    if (hThread == NULL) 
-        return GetLastError();
-    
     
     while (isFight) {
+        UpdateInterface(enemy,player,linesPlayer);
         switch (_getch()) {
             case 49:
                 SetEvent(eAttack);
