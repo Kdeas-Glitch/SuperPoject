@@ -38,17 +38,17 @@ const string CYCLOP[] = {
 "                   .-'               '-.                  ",
 "                 .'                     '.                ",
 "                /                         \\               ",
-"               |          _____             |             ",
-"               |        .'     '.           |             ",
-"               |       /   _     \\         |             ",
-"               |      |   (_)     |         |             ",
-"               |      |           |         |             ",
+"               |          _____            |              ",
+"               |        .'     '.          |              ",
+"               |       /   _     \\         |              ",
+"               |      |   (_)     |        |             ",
+"               |      |           |        |             ",
 "               |       \\         /         |             ",
-"               |        '._   _.'           |             ",
-"               |           '-'              |             ",
-"               |      _____________         |             ",
+"               |        '._   _.'          |             ",
+"               |           '-'             |             ",
+"               |      _____________        |             ",
 "               |    / | | | | | | | \\      |             ",
-"               |   |  |_|_|_|_|_|_|  |      |             ",
+"               |   |  |_|_|_|_|_|_|  |     |             ",
 "               |    \\_______________/      |             ",
 "                \\                         /              ",
 "                 '.                      .'               ",
@@ -62,7 +62,7 @@ const string ANTMAN[] = {
 "                       ______________                                 ",
 "                   .-'               '-.                              ",
 "                 .'    _           _    '.                            ",
-"                /    .' '.       .' '.    \\                       ",
+"                /    .' '.       .' '.    \\                           ",
 "               |    /      \\   /      \\   |                      ",
 "               |   |   O    | |    O   |  |                      ",
 "               |    \\      /   \\      /   |                      ",
@@ -80,21 +80,21 @@ const string ANTMAN[] = {
 };
 struct Player
 {
-    int x=5;
-    int y=5;
-    int hp= 1000;
-    int power = 23;
-    int armor = 51; // резист от атаки при защите
-    int intellect= 22; // шанс крита
-    int countOfHeal = 7;
-    int difficultyMultyplier = 2;
+    int x;
+    int y;
+    int hp;
+    int power;
+    int armor; // резист от атаки при защите
+    int intellect; // шанс крита
+    int countOfHeal;
+    int difficultyMultyplier;
 }; 
 struct Enemy
 {
-    string name = "Человек-Муравей";
+    string name = "Слайм";
     int x=5;
     int y=5;
-    int hp = 1000;
+    int hp = 100;
     int power = 28;
     int armor = 7;
     int chanceOfCrit = 10;
@@ -103,36 +103,34 @@ struct Data { // структура для передачи в поток Fight
     Enemy* en;
     Player* pl;
 };
-string lines[5] = {
-"",
-"",
-"",
-"",
-""
-};
+
 void UpdateInterface(Enemy& enemy, Player& player, string linesPlayer[]) {
     system("cls");
 
     
-    string lines[5] = {
+    string lines[6] = {
         "ВРАГ: " + enemy.name,
         "Характеристики врага:",
         "HP: " + to_string(enemy.hp),
         "Сила: " + to_string(enemy.power),
+        "Броня: " + to_string(enemy.armor),
         "Шанс крита: " + to_string(enemy.chanceOfCrit)
     };
 
    
-    string updatedLinesPlayer[5] = {
+    string updatedLinesPlayer[7] = {
         "ИГРОК",
         "Характеристики игрока:",
         "HP: " + to_string(player.hp),
         "Сила: " + to_string(player.power),
-        "Интеллект: " + to_string(player.intellect)
+        "Броня: " + to_string(player.armor),
+        "Интеллект: " + to_string(player.intellect),
+        "Зелья здоровья(шт): " + to_string(player.countOfHeal),
+        
     };
 
-    int count = 5;
-    int countPlayer = 5;
+    int count = 6;
+    int countPlayer = 7;
     int maxLines = 23;
 
     if (enemy.name == "Слайм") {
@@ -255,7 +253,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
         }
         // event не занят - по кнопке бьем/защищаемся/лечимся
         if (WaitForSingleObject(eAttack, 0) != WAIT_TIMEOUT) { 
-            Sleep(200);
+          
             cout << "Удар\n";
             int chanceCritPlayer = rand() % 100;
             int dmgPlayer = p->power;
@@ -274,7 +272,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
 
             ResetEvent(eAttack);
         }
-       
+
         if (WaitForSingleObject(eDefend, 0) != WAIT_TIMEOUT) { 
             cout << "Защита\n";
             p->hp -= e->power * (p->armor / 100);
@@ -282,7 +280,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
             cout << "Хп игрока: " << p->hp <<"\nХп врага: " << e->hp << endl;
             ResetEvent(eDefend);
         }
-      
+
         if (WaitForSingleObject(eHeal, 0) != WAIT_TIMEOUT) { 
             if (p->countOfHeal > 0) {
                 cout << "Лечение\n";
@@ -316,11 +314,23 @@ int main()
         return GetLastError();
     if (eHeal == NULL) 
         return GetLastError();
-    
+
     Data data;
     Enemy enemy;
     Player player;
+    ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла
     
+    if (file.is_open()) {
+        
+        file >> player.hp;
+        file >> player.power;
+        file >> player.armor;
+        file >> player.intellect;
+        file >> player.countOfHeal;
+        file >> player.difficultyMultyplier;
+        
+        file.close();
+    }
     data.en = &enemy;
     data.pl = &player;
 
@@ -329,12 +339,14 @@ int main()
     if (hThread == NULL) 
         return GetLastError();
 
-    string linesPlayer[5] = {
+    string linesPlayer[7] = {
         "ИГРОК",
-        "Характеристики врага:",
+        "Характеристики игрока:",
         "HP: " + to_string(player.hp),
         "Сила: " + to_string(player.power),
-        "Интеллект: " + to_string(player.intellect)
+        "Броня: " + to_string(player.armor),
+        "Интеллект: " + to_string(player.intellect),
+        "Зелья здоровья(шт): " + to_string(player.countOfHeal),
     };
     
     while (isFight) {
@@ -353,7 +365,7 @@ int main()
             }
     }
     
-    ofstream fout("data.txt");
+    ofstream fout("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt");
     if (fout.is_open()) {
         fout << player.hp << endl;
         fout << player.power << endl;
@@ -362,9 +374,8 @@ int main()
         fout << player.countOfHeal << endl;
         fout << player.difficultyMultyplier << endl;
         fout.close();
-        std::cout << "Файл успешно записан." << std::endl;
     }
-
+    
     if (player.hp <= 0 && !isFight) {
         
         while (true) {
@@ -387,7 +398,7 @@ int main()
             }  
         }
     }
-
+    
     
     WaitForSingleObject(hThread,INFINITE);
     CloseHandle(hThread);

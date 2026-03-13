@@ -10,6 +10,6 @@ C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(31,1): warning C4129: " ": 
 C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(32,1): warning C4129: "|": нераспознанная escape-последовательность символов
 C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(33,1): warning C4129: "|": нераспознанная escape-последовательность символов
 C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(34,1): warning C4129: "|": нераспознанная escape-последовательность символов
-C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(228,15): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(281,31): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(226,15): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+C:\Users\Leshu\Desktop\project\SuperPoject\Fight.cpp(279,31): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
   Fight.vcxproj -> C:\Users\Leshu\Desktop\project\SuperPoject\x64\Debug\Fight.exe
