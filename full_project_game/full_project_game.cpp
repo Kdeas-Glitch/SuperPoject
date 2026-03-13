@@ -624,17 +624,26 @@ int main()
     Room* playingRoom = &startRoom;
     InitializeCriticalSection(&cs);
 
+
+
     std::cout << "            SUPERPOJECT               " << std::endl;
     std::cout << "        Choose Difficulty:            " << std::endl;
     std::cout << "              1-Easy                  " << std::endl;
     std::cout << "              2-Middle                " << std::endl;
     std::cout << "              3-Hard                  " << std::endl;
     int difficulty = _getch();
+
+
     if (difficulty == '1' || difficulty=='2'||difficulty=='3') {
         while (true) {
 
             if (playingRoom->id == 0)
                 GenerateRoom(playingRoom, &player, x, y);
+            if (playingRoom->id == 15) {
+
+
+                //тут Босс
+            }
             saveRooms(map);
             HANDLE hThreads[2];
             DWORD IDThreads[2];
