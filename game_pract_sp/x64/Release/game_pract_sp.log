@@ -1,0 +1,7 @@
+﻿  game_pract_sp.cpp
+  Создание кода
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+D:\ProgrammingAll\for_me\SuperPoject\game_pract_sp\game_pract_sp.cpp(477): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
+  All 30 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Создание кода завершено
+  game_pract_sp.vcxproj -> D:\ProgrammingAll\for_me\SuperPoject\x64\Release\game_pract_sp.exe

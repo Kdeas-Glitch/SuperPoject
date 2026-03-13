@@ -17,6 +17,10 @@
 #define YELLOW "\033[33m"
 #define GREEN "\033[32m"
 #define CHANCE_FOR_DOORS 50
+#define CHANCE_FOR_ENEMY 70
+#define CHANCE_FOR_CHEST 70
+#define CHANCE_FOR_TRAP 75
+
 
 
 volatile int countRooms = 0;
@@ -85,7 +89,7 @@ void GenerateTrap(Elements *element) {
     element->trap.damage = 30;
 }
 
-void GenerateChest() {
+void GenerateChest(Elements* element) {
 
 }
 
@@ -135,7 +139,7 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
 
     bool canLeft = true, canRight = true, canUp = true, canDown = true;
     int countAnotherRooms = 0;
-    if (map[room->x - 1][room->y] != nullptr) {
+    if (room->x-1 >= 0 && map[room->x - 1][room->y] != nullptr) {
         if (map[room->x - 1][room->y]->right == true)
             room->left = true;
         else {
@@ -144,7 +148,7 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
             countAnotherRooms++;
         }
     }
-    if (map[room->x + 1][room->y] != nullptr) {
+    if (room->x+1 < 10 && map[room->x + 1][room->y] != nullptr) {
         if (map[room->x + 1][room->y]->left == true)
             room->right = true;
         else {
@@ -153,7 +157,7 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
             countAnotherRooms++;
         }
     }
-    if (map[room->x][room->y - 1] != nullptr) {
+    if (room->y-1 >= 0 && map[room->x][room->y - 1] != nullptr) {
         if (map[room->x][room->y - 1]->down == true)
             room->up = true;
         else {
@@ -162,7 +166,7 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
             countAnotherRooms++;
         }
     }
-    if (map[room->x][room->y + 1] != nullptr) {
+    if (room->y+1 <10 && map[room->x][room->y + 1] != nullptr) {
         if (map[room->x][room->y + 1]->up == true)
             room->down = true;
         else {
@@ -252,27 +256,69 @@ void GenerateRoom(Room* room, Player* player, int x, int y) {
     }
 
 
-    //функция вызова шансов 
-    Enemy enemy;
-    enemy.x = 1;
-    enemy.y = 2;
-    enemy.id = ID_ENEMY;
+    //генерация приколов внутри комнаты
 
-    Chest chest;
-    chest.x = 6;
-    chest.y = 2;
-    chest.id = ID_CHEST;
+    for (int i = 0; i < 5; i++) {
+        room->elements[i].chest.id = 0;
+    }
 
-    Trap trap;
-    trap.x = 5;
-    trap.y = 4;
-    trap.id = ID_TRAP;
+    if (gen() % 100 <= CHANCE_FOR_ENEMY) {
+        Enemy enemy;
+        if (x == 0 || x == 9) {
+            enemy.y = gen() % 5;
+            if (enemy.y == 0) enemy.y++;
+            enemy.x = gen() % 5;
+            if (x == 9) enemy.x += 4;
+            else if (enemy.x == 0) enemy.x++;
+        }
+        else if (y == 0 || y == 9) {
+            enemy.x = gen() % 5;
+            if (enemy.x == 0) enemy.x++;
+            enemy.y = gen() % 5;
+            if (y == 9) enemy.y += 4;
+            else if (enemy.y == 0) enemy.y++;
+        }
+        enemy.id = ID_ENEMY;
+        room->elements[0].enemy = enemy;
+        GenerateEnemy(&room->elements[0]);
+    }
+    else room->solved = true;
+    if (gen()%100 <= CHANCE_FOR_CHEST) {
+        Chest chest;
+        if (x == 0 || x == 9) {
+            chest.y = gen() % 5 + 4;
+            chest.x = gen() % 5;
+            if (x == 9) chest.x += 4;
+            else if (chest.x == 0) chest.x++;
+        }
+        else if (y == 0 || y == 9) {
+            chest.x = gen() % 5 + 4;
+            chest.y = gen() % 5;
+            if (y == 9) chest.y += 4;
+            else if (chest.y == 0) chest.y++;
+        }
+        chest.id = ID_CHEST;
+        room->elements[1].chest = chest;
+        GenerateChest(&room->elements[1]);
+    }
+    for (int i = 2; i < 5; i++) {
+        if (gen() % 100 <= CHANCE_FOR_TRAP) {
+            Trap trap;
+            trap.x = gen()%10;
+            trap.y = gen()%10;
+            if (trap.x == 0) trap.x++;
+            else if (trap.x == 9) trap.x--;
+            if (trap.y == 0) trap.y++;
+            else if (trap.y == 9) trap.y--;
 
-    room->elements[0].enemy = enemy;
-    GenerateEnemy(&room->elements[0]);
-    room->elements[1].chest = chest;
-    room->elements[2].trap = trap;
-    GenerateTrap(&room->elements[2]);
+            if (!((trap.x == room->elements[0].enemy.x && trap.y == room->elements[0].enemy.y) || (trap.x == room->elements[1].chest.x && trap.y == room->elements[1].chest.y))){
+                trap.id = ID_TRAP;
+                room->elements[i].trap = trap;
+                GenerateTrap(&room->elements[i]);                
+            }
+        }
+    }
+
 }
 
 void PrintPlace(Room* room) {
@@ -288,10 +334,10 @@ void PrintPlace(Room* room) {
 
     bool onTrap = false;
 
-    if (room->elements[0].enemy.health >0)
+    if (room->elements[0].enemy.id == ID_ENEMY && room->elements[0].enemy.health > 0)
         room->place[room->elements[0].enemy.x][room->elements[0].enemy.y] = ID_ENEMY;
-    
-    room->place[room->elements[1].chest.x][room->elements[1].chest.y] = ID_CHEST;
+    if (room->elements[1].chest.id == ID_CHEST)
+        room->place[room->elements[1].chest.x][room->elements[1].chest.y] = ID_CHEST;
 
     room->place[room->player->x][room->player->y] = ID_PLAYER;
 
@@ -366,7 +412,7 @@ void PrintPlace(Room* room) {
     //}
 
     std::cout << "hp player - " << room->player->hp << std::endl;
-    std::cout << "enemy player - " << room->elements[0].enemy.health << std::endl;
+    //std::cout << "enemy player - " << room->elements[0].enemy.health << std::endl;
 
     std::cout << std::endl;
     std::cout << std::endl;
@@ -417,7 +463,7 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
     return 0;
 }
 
-DWORD WINAPI EnemyThread(LPVOID _room) {
+DWORD WINAPI EnemyFight(LPVOID _room) {
     HANDLE hEvent;
     hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"FightEvent");
     if (hEvent == NULL)
@@ -430,12 +476,17 @@ DWORD WINAPI EnemyThread(LPVOID _room) {
     room->elements[0].enemy.health = 0;
 }
 
+
+
 int main()
 {
-    HANDLE hEvent[4];
+    setlocale(LC_ALL, ".UTF16");
+
+    HANDLE hEvent[3];
     hEvent[0] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"FightEvent");
     hEvent[1] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"ChestEvent");
-    if (hEvent[0] == NULL || hEvent[1] == NULL)
+    hEvent[2] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"MapEvent");
+    if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL)
         return GetLastError();
 
     Room startRoom;
@@ -444,7 +495,7 @@ int main()
     startRoom.player = &player;
 
     startRoom.player->x = 4;
-    startRoom.player->y = 8;
+    startRoom.player->y = 4;
 
     startRoom.x = 4;
     startRoom.y = 4;
@@ -459,6 +510,14 @@ int main()
     startRoom.right = true;
     startRoom.down = true;
     startRoom.up = true;
+    if (startRoom.elements[0].enemy.id == ID_ENEMY) {
+        startRoom.elements[0].enemy.x = 1;
+        startRoom.elements[0].enemy.y = 1;
+    }
+    if (startRoom.elements[1].chest.id == ID_CHEST) {
+        startRoom.elements[1].chest.x = 8;
+        startRoom.elements[1].chest.y = 8;
+    }
 
     /*for (int i = 0; i < 256; i++) {
         char s = i;
@@ -478,7 +537,7 @@ int main()
         if (hThreads[0] == NULL)
             return GetLastError();
 
-        hThreads[1] = CreateThread(NULL, 0, EnemyThread, playingRoom, NULL, &IDThreads[1]);
+        hThreads[1] = CreateThread(NULL, 0, EnemyFight, playingRoom, NULL, &IDThreads[1]);
         if (hThreads[1] == NULL)
             return GetLastError();
 
@@ -523,7 +582,7 @@ int main()
                         playingRoom->player->y--;
 
                         for (int i = 2; i < 5; i++) {
-                            if (startRoom.elements[i].trap.id == ID_TRAP && startRoom.place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
                                 playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
                                 break;
                             }
@@ -666,6 +725,11 @@ int main()
 
                         break;
                     }
+
+                    break;
+                case 'm':
+
+
 
                     break;
                 }
