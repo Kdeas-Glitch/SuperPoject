@@ -31,6 +31,7 @@ DWORD WINAPI Chest(LPVOID lpParam) {
     wchar_t figth_process[] = L"C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\x64\\Debug\\Fight.exe ";
     Player* p = data->pl;
     srand(time(NULL) + GetCurrentThreadId());
+   
     string linesPlayer[7] = {
          "ИГРОК",
          "Характеристики игрока:",
@@ -40,9 +41,11 @@ DWORD WINAPI Chest(LPVOID lpParam) {
          "Интеллект: " + to_string(p->intellect),
          "Зелья здоровья(шт): " + to_string(p->countOfHeal),
     };
+    
     for (int i = 0; i < 7; i++) {
         cout << linesPlayer[i] << endl;
     }
+    cout << "1 - Открыть | 2 - Уйти\n";
     HANDLE chestOpen = OpenEvent(EVENT_ALL_ACCESS,FALSE,L"OpenChest");
     if (chestOpen == NULL) {
         return GetLastError();
@@ -52,7 +55,7 @@ DWORD WINAPI Chest(LPVOID lpParam) {
         if (WaitForSingleObject(chestOpen, 0) != WAIT_TIMEOUT) {
             int chanceLoot = rand() % 100;
             int chanceMimik = rand() % 100;
-            if (chanceMimik <= 90) {
+            if (chanceMimik <= 20) {
                 if (!CreateProcess(figth_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
                     return GetLastError();
                 }
@@ -139,7 +142,9 @@ int main()
         case 49: 
             SetEvent(chest);
             break;
-
+        case 50:
+            TerminateProcess(GetCurrentProcess(),0);
+            break;
         default:break;
         }
         

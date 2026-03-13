@@ -78,10 +78,30 @@ const string ANTMAN[] = {
 "                  /      |     |      \\              ",
 "                 '       |     |        '             ",
 };
+const string BOSS[] = {
+    "              @@@@@@@@@@@@@@@              ",
+    "           @@%%%%%%%%%%%%%%%@@             ",
+    "         @@%%###############%%@@           ",
+    "        @%##(((((((((((((((((##%@          ",
+    "       @%#((((((((((((((((((((#%@          ",
+    "       @#((((((((((((((((((((((#@          ",
+    "       @#((((((((((((((((((((((#@          ",
+    "       @%#((((((((((((((((((((#%@          ",
+    "        @%##(((((((((((((((##%@            ",
+    "         @@%%###############%%@@           ",
+    "           @@%%%%%%%%%%%%%%%@@             ",
+    "              @@@@@@@@@@@@@@@              ",
+    "               @@         @@               ",
+    "              @@@@       @@@@              ",
+    "             @@@@@@     @@@@@@             ",
+    "            @@@@@@@@   @@@@@@@@            ",
+    "           @@@@@@@@@@ @@@@@@@@@@           ",
+    "          @@@@@@@@@@@@@@@@@@@@@@@          ",
+    "         @@@@@@@@@@@@@@@@@@@@@@@@@         ",
+    "        @@@@@@@@@@@@@@@@@@@@@@@@@@@        "
+};
 struct Player
 {
-    int x;
-    int y;
     int hp;
     int power;
     int armor; // резист от атаки при защите
@@ -91,19 +111,18 @@ struct Player
 }; 
 struct Enemy
 {
-    string name = "Слайм";
-    int x=5;
-    int y=5;
+    string name = "";
     int hp = 100;
-    int power = 28;
+    int power = 13;
     int armor = 7;
     int chanceOfCrit = 10;
 };
+
 struct Data { // структура для передачи в поток Fight
     Enemy* en;
     Player* pl;
 };
-
+bool isBoss = false;
 void UpdateInterface(Enemy& enemy, Player& player, string linesPlayer[]) {
     system("cls");
 
@@ -212,6 +231,32 @@ void UpdateInterface(Enemy& enemy, Player& player, string linesPlayer[]) {
             cout << endl;
         }
     }
+    else if (enemy.name == "БОСС") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 20) {
+                cout << setw(40) << left << BOSS[i];
+            }
+            else {
+                cout << setw(40) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(28) << left << lines[i];
+            }
+            else {
+                cout << setw(28) << left << " ";
+            }
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
 
     cout << "\nУправление: 1 - Атака | 2 - Защита | 3 - Лечение\n";
     if (player.hp <= 0) {
@@ -222,6 +267,7 @@ void UpdateInterface(Enemy& enemy, Player& player, string linesPlayer[]) {
     }
 }
 bool isFight = true;
+string action = "";
 DWORD WINAPI Fight(LPVOID lpParam) {
     srand(time(0));
     Data* data = (Data*)lpParam;
@@ -254,29 +300,30 @@ DWORD WINAPI Fight(LPVOID lpParam) {
         // event не занят - по кнопке бьем/защищаемся/лечимся
         if (WaitForSingleObject(eAttack, 0) != WAIT_TIMEOUT) { 
           
-            cout << "Удар\n";
+            action += "Удар ";
             int chanceCritPlayer = rand() % 100;
             int dmgPlayer = p->power;
             int chanceCritEnemy = rand() % 100;
             int dmgEnemy = e->power;
             if (chanceCritPlayer < p->intellect+1) {
                 dmgPlayer *=2;
-                cout << "Крит у игрока\n";
+                
+                action += "\n(Крит у игрока)";
             }
             e->hp -= dmgPlayer;
             if (chanceCritEnemy < e->chanceOfCrit + 1) {
                 dmgEnemy *= 2;
-                cout << "Крит у врага\n";
+                action += "\n(Крит у врага)";
             }
             p->hp -=dmgEnemy;
-
+            
             ResetEvent(eAttack);
         }
 
         if (WaitForSingleObject(eDefend, 0) != WAIT_TIMEOUT) { 
             cout << "Защита\n";
-            p->hp -= e->power * (p->armor / 100);
-            e->hp -= p->power * 0.2;
+            p->hp -= e->power * ((float)p->armor / 100.0f);
+            e->hp -=  p->power * 0.2;
             cout << "Хп игрока: " << p->hp <<"\nХп врага: " << e->hp << endl;
             ResetEvent(eDefend);
         }
@@ -295,6 +342,8 @@ DWORD WINAPI Fight(LPVOID lpParam) {
         }
     }
     
+    
+    
     CloseHandle(eAttack);
     CloseHandle(eDefend);
     CloseHandle(eHeal);
@@ -304,6 +353,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
 
 int main()
 {
+    srand(time(NULL));
     setlocale(LC_ALL, "rus");
     HANDLE eAttack = CreateEvent(NULL,TRUE,FALSE,L"eAttack");
     HANDLE eDefend = CreateEvent(NULL, TRUE, FALSE, L"eDefend");
@@ -314,13 +364,37 @@ int main()
         return GetLastError();
     if (eHeal == NULL) 
         return GetLastError();
-
+    
     Data data;
     Enemy enemy;
     Player player;
+    ifstream outBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
+    if (outBoss.is_open()) {
+        outBoss >> isBoss;
+        outBoss.close();
+    }
+    
+    string names[] = {
+        "Слайм",
+        "Человек-Муравей",
+        "Циклоп",
+    };
+   
+    if (isBoss) {
+        enemy.name = "БОСС";
+        enemy.armor *= 10;
+        enemy.hp *= 10;
+        enemy.power *= 10;
+        enemy.chanceOfCrit *= 2;
+    }
+    else {
+        int randomMonster = rand() % 3 ;
+        enemy.name = names[randomMonster];
+    }
+
     ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла
     
-    if (file.is_open()) {
+    if (file.is_open()) { // запись
         
         file >> player.hp;
         file >> player.power;
@@ -331,6 +405,7 @@ int main()
         
         file.close();
     }
+
     data.en = &enemy;
     data.pl = &player;
 
@@ -351,6 +426,8 @@ int main()
     
     while (isFight) {
         UpdateInterface(enemy,player,linesPlayer);
+        cout << action;
+        action = "";
         switch (_getch()) {
             case 49:
                 SetEvent(eAttack);
@@ -375,7 +452,7 @@ int main()
         fout << player.difficultyMultyplier << endl;
         fout.close();
     }
-    
+
     if (player.hp <= 0 && !isFight) {
         
         while (true) {
