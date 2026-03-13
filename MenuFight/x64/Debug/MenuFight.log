@@ -1,4 +1,0 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: промежуточный каталог (x64\Debug\) содержит файлы, которые используются совместно с другим проектом (MenuFight.vcxproj).  Это может привести к ошибкам очистки и перестроения.
-  Chest.cpp
-C:\Users\Leshu\Desktop\project\MenuFight\Chest.cpp(29,22): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-  MenuFight.vcxproj -> C:\Users\Leshu\Desktop\project\SuperPoject\x64\Debug\Chest.exe

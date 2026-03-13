@@ -1,6 +1,7 @@
 ﻿#include <cstdlib> 
 #include <ctime>
 #include <iostream>
+#include <fstream>
 #include <windows.h>
 #include <conio.h>
 #include <string>
@@ -67,7 +68,7 @@ const string CYCLOP = R"(
 //                      '-.__   /   \   __.-'
 //                           \ |     | /
 //                            \|     |/
-//                          ___|_____|___
+//                          ___|     |___
 //                         /   |     |   \
 //                        /    |     |    \
 //                       /     |     |     \
@@ -80,8 +81,8 @@ struct Player
     int y=5;
     int hp= 100;
     int power = 13;
-    int armor = 50; // резист от атаки при защите
-    int intellect= 20; // шанс крита
+    int armor = 51; // резист от атаки при защите
+    int intellect= 22; // шанс крита
     int countOfHeal = 7;
     int difficultyMultyplier = 2;
 }; 
@@ -91,7 +92,7 @@ struct Enemy
     int x=5;
     int y=5;
     int hp = 100;
-    int power = 27;
+    int power = 28;
     int armor = 7;
     int chanceOfCrit = 10;
 };
@@ -254,6 +255,17 @@ int main()
     }
     
     if (player.hp <= 0 && !isFight) {
+        ofstream fout("data.txt");
+        if (fout.is_open()) {
+            fout << player.hp << endl;
+            fout << player.power << endl;
+            fout << player.armor << endl;
+            fout << player.intellect << endl;
+            fout << player.countOfHeal << endl;
+            fout << player.difficultyMultyplier << endl;
+            fout.close();
+            std::cout << "Файл успешно записан." << std::endl;
+        }
         while (true) {
             if (_getch() != NULL) {
                 TerminateProcess(GetCurrentProcess(), 1);
@@ -262,7 +274,7 @@ int main()
 
     }
     if (enemy.hp <= 0 && !isFight) {
-
+        
         while (true) {
             switch (_getch()) {
             case 51:
@@ -274,6 +286,7 @@ int main()
             }  
         }
     }
+
     
     WaitForSingleObject(hThread,INFINITE);
     CloseHandle(hThread);
