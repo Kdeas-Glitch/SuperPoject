@@ -574,10 +574,8 @@ void StartGenerate(Room* startRoom, Player* player) {
     startRoom->right = true;
     startRoom->down = true;
     startRoom->up = true;
-    if (startRoom->elements[0].enemy.id == ID_ENEMY) {
-        startRoom->elements[0].enemy.x = 1;
-        startRoom->elements[0].enemy.y = 1;
-    }
+    startRoom->elements[0].enemy.id = 0;
+    startRoom->solved = true;
     if (startRoom->elements[1].chest.id == ID_CHEST) {
         startRoom->elements[1].chest.x = 8;
         startRoom->elements[1].chest.y = 8;
@@ -625,252 +623,264 @@ int main()
     int x = 0, y = 0;
     Room* playingRoom = &startRoom;
     InitializeCriticalSection(&cs);
-    while (true) {
 
-        if (playingRoom->id == 0)
-            GenerateRoom(playingRoom, &player, x, y);
-        saveRooms(map);
-        HANDLE hThreads[2];
-        DWORD IDThreads[2];
-        bool hasEnemy = false;
-        if (playingRoom->elements[0].enemy.id == ID_ENEMY) {
-            hasEnemy = true;
-            hThreads[0] = CreateThread(NULL, 0, EnemyGameplay, playingRoom, NULL, &IDThreads[0]);
-            if (hThreads[0] == NULL)
-                return GetLastError();
+    std::cout << "            SUPERPOJECT               " << std::endl;
+    std::cout << "        Choose Difficulty:            " << std::endl;
+    std::cout << "              1-Easy                  " << std::endl;
+    std::cout << "              2-Middle                " << std::endl;
+    std::cout << "              3-Hard                  " << std::endl;
+    int difficulty = _getch();
+    if (difficulty == '1' || difficulty=='2'||difficulty=='3') {
+        while (true) {
 
-            hThreads[1] = CreateThread(NULL, 0, EnemyFight, playingRoom, NULL, &IDThreads[1]);
-            if (hThreads[1] == NULL)
-                return GetLastError();
-        }
-        bool solvedRoom = false;
-        while (solvedRoom != true) {
-            PrintPlace(playingRoom);
-
-            WaitForSingleObject(hEvent[3], INFINITE);
-
-            if (_kbhit() == 1) {
-                EnterCriticalSection(&cs);
-                switch (_getch()) {
-                case 'w':
-                    switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y - 1]) {
-                    case 0:
-                        playingRoom->player->y--;
-                        break;
-                    case ID_ENEMY:
-                        PulseEvent(hEvent[0]);
-                        break;
-                    case ID_CHEST:
-                        PulseEvent(hEvent[1]);
-                        break;
-                    case ID_DOOR:
-                        if (playingRoom->solved == true) {
-                            solvedRoom = true;
-                            Room* rm;
-                            if (map[playingRoom->x][playingRoom->y - 1] != nullptr) {
-                                rm = map[playingRoom->x][playingRoom->y - 1];
-                            }
-                            else {
-                                rm = new Room;
-                                countRooms++;
-                            }
-                            x = playingRoom->player->x;
-                            y = playingRoom->player->y - 1;
-                            rm->player = playingRoom->player;
-                            rm->player->y = playingRoom->player->y + 7;
-                            rm->x = playingRoom->x;
-                            rm->y = playingRoom->y - 1;
-                            playingRoom->playerer = false;
-                            rm->playerer = true;
-                            playingRoom = rm;
-                        }
-                        break;
-                    case ID_TRAP:
-                        playingRoom->player->y--;
-
-                        for (int i = 2; i < 5; i++) {
-                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-
-                    break;
-                case 's':
-                    switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y + 1]) {
-                    case 0:
-                        playingRoom->player->y++;
-                        break;
-                    case ID_ENEMY:
-                        PulseEvent(hEvent[0]);
-                        break;
-                    case ID_CHEST:
-                        PulseEvent(hEvent[1]);
-                        break;
-                    case ID_DOOR:
-                        if (playingRoom->solved == true) {
-                            solvedRoom = true;
-                            Room* rm;
-                            if (map[playingRoom->x][playingRoom->y + 1] != nullptr) {
-                                rm = map[playingRoom->x][playingRoom->y + 1];
-                            }
-                            else {
-                                rm = new Room;
-                                countRooms++;
-                            }
-                            x = playingRoom->player->x;
-                            y = playingRoom->player->y + 1;
-                            rm->player = playingRoom->player;
-                            rm->player->y = playingRoom->player->y - 7;
-                            rm->x = playingRoom->x;
-                            rm->y = playingRoom->y + 1;
-                            playingRoom->playerer = false;
-                            rm->playerer = true;
-                            playingRoom = rm;
-                        }
-                        break;
-                    case ID_TRAP:
-                        playingRoom->player->y++;
-
-                        for (int i = 2; i < 5; i++) {
-                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-
-                    break;
-                case 'a':
-                    switch (playingRoom->place[playingRoom->player->x - 1][playingRoom->player->y]) {
-                    case 0:
-                        playingRoom->player->x--;
-                        break;
-                    case ID_ENEMY:
-                        PulseEvent(hEvent[0]);
-                        break;
-                    case ID_CHEST:
-                        PulseEvent(hEvent[1]);
-                        break;
-                    case ID_DOOR:
-                        if (playingRoom->solved == true) {
-                            solvedRoom = true;
-                            Room* rm;
-                            if (map[playingRoom->x - 1][playingRoom->y] != nullptr) {
-                                rm = map[playingRoom->x - 1][playingRoom->y];
-                            }
-                            else {
-                                rm = new Room;
-                                countRooms++;
-                            }
-                            x = playingRoom->player->x - 1;
-                            y = playingRoom->player->y;
-                            rm->player = playingRoom->player;
-                            rm->player->x = playingRoom->player->x + 7;
-                            rm->x = playingRoom->x - 1;
-                            rm->y = playingRoom->y;
-                            playingRoom->playerer = false;
-                            rm->playerer = true;
-                            playingRoom = rm;
-                        }
-                        break;
-                    case ID_TRAP:
-                        playingRoom->player->x--;
-
-                        for (int i = 2; i < 5; i++) {
-                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-
-                    break;
-                case 'd':
-                    switch (playingRoom->place[playingRoom->player->x + 1][playingRoom->player->y]) {
-                    case 0:
-                        playingRoom->player->x++;
-                        break;
-                    case ID_ENEMY:
-                        PulseEvent(hEvent[0]);
-                        break;
-                    case ID_CHEST:
-                        PulseEvent(hEvent[1]);
-                        break;
-                    case ID_DOOR:
-                        if (playingRoom->solved == true) {
-                            solvedRoom = true;
-                            Room* rm;
-                            if (map[playingRoom->x + 1][playingRoom->y] != nullptr) {
-                                rm = map[playingRoom->x + 1][playingRoom->y];
-                            }
-                            else {
-                                rm = new Room;
-                                countRooms++;
-                            }
-                            x = playingRoom->player->x + 1;
-                            y = playingRoom->player->y;
-                            rm->player = playingRoom->player;
-                            rm->player->x = playingRoom->player->x - 7;
-                            rm->x = playingRoom->x + 1;
-                            rm->y = playingRoom->y;
-                            playingRoom->playerer = false;
-                            rm->playerer = true;
-                            playingRoom = rm;
-                        }
-                        break;
-                    case ID_TRAP:
-                        playingRoom->player->x++;
-
-                        for (int i = 2; i < 5; i++) {
-                            if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-
-                    break;
-                case 'm':
-                    if (!MapisOpen) {
-                        if (!CreateProcess(NULL, mapping, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &siClient, &ClientApp[countmap])) {
-                            std::cout << "Child process is not Created";
-                            return 0;
-
-                        }
-                        MapisOpen = true;
-                        countmap++;
-                    }
-                    else {
-                        TerminateProcess(ClientApp[countmap-1].hProcess,0);
-                        CloseHandle(ClientApp[countmap - 1].hProcess);
-                        CloseHandle(ClientApp[countmap - 1].hThread);
-                        countmap--;
-                        MapisOpen = false;
-                    }
-                    break;
-                }
-                LeaveCriticalSection(&cs);
-            }
+            if (playingRoom->id == 0)
+                GenerateRoom(playingRoom, &player, x, y);
             saveRooms(map);
-            Sleep(200);
+            HANDLE hThreads[2];
+            DWORD IDThreads[2];
+            bool hasEnemy = false;
+            if (playingRoom->elements[0].enemy.id == ID_ENEMY) {
+                hasEnemy = true;
+                hThreads[0] = CreateThread(NULL, 0, EnemyGameplay, playingRoom, NULL, &IDThreads[0]);
+                if (hThreads[0] == NULL)
+                    return GetLastError();
+
+                hThreads[1] = CreateThread(NULL, 0, EnemyFight, playingRoom, NULL, &IDThreads[1]);
+                if (hThreads[1] == NULL)
+                    return GetLastError();
+            }
+            bool solvedRoom = false;
+            while (solvedRoom != true) {
+                PrintPlace(playingRoom);
+
+                WaitForSingleObject(hEvent[3], INFINITE);
+
+                if (_kbhit() == 1) {
+                    EnterCriticalSection(&cs);
+                    switch (_getch()) {
+                    case 'w':
+                        switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y - 1]) {
+                        case 0:
+                            playingRoom->player->y--;
+                            break;
+                        case ID_ENEMY:
+                            PulseEvent(hEvent[0]);
+                            break;
+                        case ID_CHEST:
+                            PulseEvent(hEvent[1]);
+                            break;
+                        case ID_DOOR:
+                            if (playingRoom->solved == true) {
+                                solvedRoom = true;
+                                Room* rm;
+                                if (map[playingRoom->x][playingRoom->y - 1] != nullptr) {
+                                    rm = map[playingRoom->x][playingRoom->y - 1];
+                                }
+                                else {
+                                    rm = new Room;
+                                    countRooms++;
+                                }
+                                x = playingRoom->player->x;
+                                y = playingRoom->player->y - 1;
+                                rm->player = playingRoom->player;
+                                rm->player->y = playingRoom->player->y + 7;
+                                rm->x = playingRoom->x;
+                                rm->y = playingRoom->y - 1;
+                                playingRoom->playerer = false;
+                                rm->playerer = true;
+                                playingRoom = rm;
+                            }
+                            break;
+                        case ID_TRAP:
+                            playingRoom->player->y--;
+
+                            for (int i = 2; i < 5; i++) {
+                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+
+                        break;
+                    case 's':
+                        switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y + 1]) {
+                        case 0:
+                            playingRoom->player->y++;
+                            break;
+                        case ID_ENEMY:
+                            PulseEvent(hEvent[0]);
+                            break;
+                        case ID_CHEST:
+                            PulseEvent(hEvent[1]);
+                            break;
+                        case ID_DOOR:
+                            if (playingRoom->solved == true) {
+                                solvedRoom = true;
+                                Room* rm;
+                                if (map[playingRoom->x][playingRoom->y + 1] != nullptr) {
+                                    rm = map[playingRoom->x][playingRoom->y + 1];
+                                }
+                                else {
+                                    rm = new Room;
+                                    countRooms++;
+                                }
+                                x = playingRoom->player->x;
+                                y = playingRoom->player->y + 1;
+                                rm->player = playingRoom->player;
+                                rm->player->y = playingRoom->player->y - 7;
+                                rm->x = playingRoom->x;
+                                rm->y = playingRoom->y + 1;
+                                playingRoom->playerer = false;
+                                rm->playerer = true;
+                                playingRoom = rm;
+                            }
+                            break;
+                        case ID_TRAP:
+                            playingRoom->player->y++;
+
+                            for (int i = 2; i < 5; i++) {
+                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+
+                        break;
+                    case 'a':
+                        switch (playingRoom->place[playingRoom->player->x - 1][playingRoom->player->y]) {
+                        case 0:
+                            playingRoom->player->x--;
+                            break;
+                        case ID_ENEMY:
+                            PulseEvent(hEvent[0]);
+                            break;
+                        case ID_CHEST:
+                            PulseEvent(hEvent[1]);
+                            break;
+                        case ID_DOOR:
+                            if (playingRoom->solved == true) {
+                                solvedRoom = true;
+                                Room* rm;
+                                if (map[playingRoom->x - 1][playingRoom->y] != nullptr) {
+                                    rm = map[playingRoom->x - 1][playingRoom->y];
+                                }
+                                else {
+                                    rm = new Room;
+                                    countRooms++;
+                                }
+                                x = playingRoom->player->x - 1;
+                                y = playingRoom->player->y;
+                                rm->player = playingRoom->player;
+                                rm->player->x = playingRoom->player->x + 7;
+                                rm->x = playingRoom->x - 1;
+                                rm->y = playingRoom->y;
+                                playingRoom->playerer = false;
+                                rm->playerer = true;
+                                playingRoom = rm;
+                            }
+                            break;
+                        case ID_TRAP:
+                            playingRoom->player->x--;
+
+                            for (int i = 2; i < 5; i++) {
+                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+
+                        break;
+                    case 'd':
+                        switch (playingRoom->place[playingRoom->player->x + 1][playingRoom->player->y]) {
+                        case 0:
+                            playingRoom->player->x++;
+                            break;
+                        case ID_ENEMY:
+                            PulseEvent(hEvent[0]);
+                            break;
+                        case ID_CHEST:
+                            PulseEvent(hEvent[1]);
+                            break;
+                        case ID_DOOR:
+                            if (playingRoom->solved == true) {
+                                solvedRoom = true;
+                                Room* rm;
+                                if (map[playingRoom->x + 1][playingRoom->y] != nullptr) {
+                                    rm = map[playingRoom->x + 1][playingRoom->y];
+                                }
+                                else {
+                                    rm = new Room;
+                                    countRooms++;
+                                }
+                                x = playingRoom->player->x + 1;
+                                y = playingRoom->player->y;
+                                rm->player = playingRoom->player;
+                                rm->player->x = playingRoom->player->x - 7;
+                                rm->x = playingRoom->x + 1;
+                                rm->y = playingRoom->y;
+                                playingRoom->playerer = false;
+                                rm->playerer = true;
+                                playingRoom = rm;
+                            }
+                            break;
+                        case ID_TRAP:
+                            playingRoom->player->x++;
+
+                            for (int i = 2; i < 5; i++) {
+                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+
+                        break;
+                    case 'm':
+                        if (!MapisOpen) {
+                            if (!CreateProcess(NULL, mapping, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &siClient, &ClientApp[countmap])) {
+                                std::cout << "Child process is not Created";
+                                return 0;
+
+                            }
+                            MapisOpen = true;
+                            countmap++;
+                        }
+                        else {
+                            TerminateProcess(ClientApp[countmap - 1].hProcess, 0);
+                            CloseHandle(ClientApp[countmap - 1].hProcess);
+                            CloseHandle(ClientApp[countmap - 1].hThread);
+                            countmap--;
+                            MapisOpen = false;
+                        }
+                        break;
+                    }
+                    LeaveCriticalSection(&cs);
+                }
+                saveRooms(map);
+                Sleep(200);
 
 
-            system("cls");
+                system("cls");
+            }
+            if (hasEnemy) {
+                CloseHandle(hThreads[0]);
+                CloseHandle(hThreads[1]);
+            }
         }
-        if (hasEnemy) {
-            CloseHandle(hThreads[0]);
-            CloseHandle(hThreads[1]);
-        }
+    }
+    else {
+        std::cout << "        БЫЛО СКАЗАННО 1-3!!!!           " << std::endl;
     }
     DeleteCriticalSection(&cs);
     CloseHandle(hEvent[0]);

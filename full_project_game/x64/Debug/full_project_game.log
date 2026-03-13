@@ -1,4 +1,4 @@
 ﻿  full_project_game.cpp
-C:\Users\HardShop\Desktop\SuperPoject\full_project_game\full_project_game.cpp(599,33): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
-C:\Users\HardShop\Desktop\SuperPoject\full_project_game\full_project_game.cpp(559,1): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
-  full_project_game.vcxproj -> C:\Users\HardShop\Desktop\SuperPoject\x64\Debug\full_project_game.exe
+C:\Users\HardShop\Desktop\Projects\SuperPoject\full_project_game\full_project_game.cpp(594,33): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
+C:\Users\HardShop\Desktop\Projects\SuperPoject\full_project_game\full_project_game.cpp(556,1): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
+  full_project_game.vcxproj -> C:\Users\HardShop\Desktop\Projects\SuperPoject\x64\Debug\full_project_game.exe
