@@ -46,7 +46,7 @@ struct Player {
 struct Room {
     int X = -1;
     int Y;
-
+    bool playrer=false;
     bool solved;
 
     bool Down;
@@ -82,9 +82,11 @@ const char* get_color_other(int solved) {//Цвета для краёв
         return "\033[0m"; // Белый
     }
 }
-const std::string filename = "rooms.dat";
+const std::string filename = "..\\game_pract_sp\\rooms.dat";
+HANDLE hMutex;
 
 void loadRooms(Room rooms[11][10]) {//чтение из файла
+    WaitForSingleObject(hMutex,INFINITY);
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "Error With File" << std::endl;
@@ -93,23 +95,54 @@ void loadRooms(Room rooms[11][10]) {//чтение из файла
 
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
-            Room& room = rooms[i][j];
+            rooms[i][j] = Room();  // сбрасываем в значение по умолчанию
+        }
+    }
 
-            file.read(reinterpret_cast<char*>(&room.X), sizeof(room.X));//Запись нужных элементов
-            file.read(reinterpret_cast<char*>(&room.Y), sizeof(room.Y));
-            file.read(reinterpret_cast<char*>(&room.solved), sizeof(room.solved));
-            file.read(reinterpret_cast<char*>(&room.Down), sizeof(room.Down));
-            file.read(reinterpret_cast<char*>(&room.Right), sizeof(room.Right));
-            file.read(reinterpret_cast<char*>(&room.Top), sizeof(room.Top));
-            file.read(reinterpret_cast<char*>(&room.Left), sizeof(room.Left));
+    // Читаем 100 записей из файла
+    for (int i = 0; i < 100; ++i) {
+        // Временные переменные для чтения
+        bool playrer;
+        int readX, readY;
+        bool readSolved, readDown, readRight, readTop, readLeft;
+
+        // Читаем данные из файла
+        file.read(reinterpret_cast<char*>(&readX), sizeof(readX));
+        file.read(reinterpret_cast<char*>(&readY), sizeof(readY));
+        file.read(reinterpret_cast<char*>(&readSolved), sizeof(readSolved));
+        file.read(reinterpret_cast<char*>(&readDown), sizeof(readDown));
+        file.read(reinterpret_cast<char*>(&readRight), sizeof(readRight));
+        file.read(reinterpret_cast<char*>(&readTop), sizeof(readTop));
+        file.read(reinterpret_cast<char*>(&readLeft), sizeof(readLeft));
+        file.read(reinterpret_cast<char*>(&playrer), sizeof(playrer));
+
+        // Проверяем, что координаты в пределах массива
+        if (readX >= 0 && readX < 10 && readY >= 0 && readY < 10) {
+            // Записываем в массив ТОЛЬКО по координатам из файла
+            Room& room = rooms[readY][readX];
+
+            room.X = readX;
+            room.Y = readY;
+            room.solved = readSolved;
+            room.Top = readTop;
+            room.Down = readDown;
+            room.Left = readLeft;
+            room.Right = readRight;
+            room.playrer = playrer;
+
         }
     }
     file.close();
+    ReleaseMutex(hMutex);
 }
 
 int main()
 {
-    Player pl{ 1,4 };
+    hMutex = OpenMutex(SYNCHRONIZE, FALSE, L"FileMutex");
+    if (hMutex == NULL) {
+        return GetLastError();
+    }
+    Player pl;
     Room rooms[11][10];
     Room nt{ 5,6 };
     nt.X = 6;
@@ -122,11 +155,11 @@ int main()
     //    rooms[i][1] = nt;
     //rooms[4][5] = nt;
     //nt.solved = false;
-    rooms[4][4] = nt;
+   /* rooms[4][4] = nt;
     rooms[1][1] = nt;
     rooms[2][2] = nt;
     rooms[3][3] = nt;
-    rooms[5][5] = nt;
+    rooms[5][5] = nt;*/
     bool center = true;
     bool middle = false;
     std::cout << std::endl;
@@ -159,11 +192,17 @@ int main()
                         else {
                             middle = false;
                         }
-                        left = true;
-                        if (rooms[i / 2][j / 6].Left && left && middle) {//Проверка на то что есть проход слева(.Left) и середина(middle) и то что стенка левая(left)
-                            std::cout << get_color(rooms[i / 2][j / 6].solved && rooms[i / 2][(j - 1) / 6].solved) << "=" << WHITE;//если комната которая рисуется или комната слева не решена то рисуется жёлтое равно
+                        if (j % 6 == 0) {//Проверка на стену
+                            left = true;
                         }
-                        else if (rooms[i / 2][j / 6].Right && left && middle) {//Не работает не трогать (По идее должен вырисовывать проход справа)
+                        else
+                        {
+                            left = false;
+                        }
+                        if (rooms[i / 2][j / 6].Left && left && middle) {//Проверка на то что есть проход слева(.Left) и середина(middle) и то что стенка левая(left)
+                            std::cout<< get_color(rooms[i / 2][j / 6].solved && rooms[i / 2][(j - 1) / 6].solved) << "=" << WHITE;//если комната которая рисуется или комната слева не решена то рисуется жёлтое равно
+                        }
+                        else if (rooms[i / 2][j / 6].Right && !left && middle) {//Не работает не трогать (По идее должен вырисовывать проход справа)
                             std::cout << get_color(true) << "=" << WHITE;
                         }
                         else
@@ -208,7 +247,7 @@ int main()
                                     middle = false;
                                 }
                                 if((middle && rooms[(i) / 2][(j) / 6].X != -1 && rooms[(i) / 2][(j) / 6].Top && i > 1 && i < 20))
-                                    std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;
+                                    std::cout<< get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;
                                 else
                                 std::cout << get_color(rooms[i / 2][j / 6].solved) << (char)196 << WHITE;//Если конмнаты нет то _
                                 //std::cout << (char)196;
@@ -221,7 +260,7 @@ int main()
                             else {
                                 middle = false;
                             }
-                            if (middle && pl.y_room == i / 2 && pl.x_room == j / 6)//Если Середина и координаты комнаты совпадают с координатами игрока
+                            if (middle && rooms[i / 2][j / 6].playrer)//Если Середина и координаты комнаты совпадают с координатами игрока
                                 std::cout << COLOR << "*" << WHITE;//Игрок
                             else
                                 std::cout << " " << WHITE;
@@ -263,7 +302,12 @@ int main()
                                 //else {
                                 //    std::cout << get_color(false) << "|" << WHITE; // Желтая стена
                                 //}
-
+                                if (i % 2 == 1) {//Проверка на середину
+                                    middle = true;
+                                }
+                                else {
+                                    middle = false;
+                                }
                                 int left_col = (j - 1) / 6;
                                 int right_col = j / 6;
 
@@ -277,10 +321,17 @@ int main()
 
                                 // Стена зеленая, если ЛЮБАЯ из этих четырех комнат решена
                                 if (top_left_solved || bottom_left_solved || top_right_solved || bottom_right_solved) {
-                                    std::cout << get_color(true) << "|" << WHITE; // Зеленая
+                                    if (rooms[i / 2][(j - 1) / 6].Right && middle)
+                                        std::cout << get_color(rooms[i / 2][(j) / 6].solved) << "=" << WHITE;
+                                    else
+                                        std::cout << get_color(true) << "|" << WHITE; // Зеленая
                                 }
                                 else {
-                                    std::cout << get_color(false) << "|" << WHITE; // Желтая
+                                    
+                                    if(rooms[i/2][(j-1)/6].Right&&middle)
+                                        std::cout << get_color(false) << "=" << WHITE; // Желтая
+                                    else
+                                        std::cout << get_color(false) << "|" << WHITE;
                                 }
 
                             }
@@ -299,7 +350,7 @@ int main()
                                     middle = false;
                                 }
                                 if (middle && rooms[(i - 1) / 2][(j) / 6].X != -1 && rooms[(i - 1) / 2][(j) / 6].Down)//Если середина и комната существует  и есть проход вниз то отобразить проход вниз
-                                    std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;
+                                    std::cout << get_color(rooms[(i) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;
                                 else
                                     std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)196 << WHITE;//Вывести просто _
                             }
