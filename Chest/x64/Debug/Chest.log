@@ -1,0 +1,3 @@
+﻿  Chest.cpp
+D:\ProgrammingAll\3kurs\full_project_game\Chest\Chest.cpp(28,22): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  Chest.vcxproj -> D:\ProgrammingAll\3kurs\full_project_game\x64\Debug\Chest.exe

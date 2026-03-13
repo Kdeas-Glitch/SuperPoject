@@ -1,0 +1,3 @@
+﻿  Mapping.cpp
+C:\Users\HardShop\Desktop\SuperPoject\Mapping\Mapping.cpp(164,49): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
+  Mapping.vcxproj -> C:\Users\HardShop\Desktop\SuperPoject\x64\Debug\Mapping.exe

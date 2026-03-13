@@ -1,0 +1,15 @@
+﻿  Fight.cpp
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(11,1): warning C4129: " ": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(17,1): warning C4129: "|": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(20,1): warning C4129: "_": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(21,1): warning C4129: "|": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(28,1): warning C4129: " ": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(29,1): warning C4129: " ": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(30,1): warning C4129: "|": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(30,1): warning C4129: " ": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(31,1): warning C4129: "|": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(32,1): warning C4129: "|": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(33,1): warning C4129: "|": нераспознанная escape-последовательность символов
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(104,15): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+C:\Users\HardShop\Desktop\SuperPoject\Fight\Fight.cpp(158,31): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+  Fight.vcxproj -> C:\Users\HardShop\Desktop\SuperPoject\x64\Debug\Fight.exe
