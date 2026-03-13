@@ -22,7 +22,7 @@
 #define CHANCE_FOR_TRAP 75
 
 
-
+CRITICAL_SECTION cs;
 volatile int countRooms = 0;
 
 struct Player {
@@ -378,7 +378,7 @@ void PrintPlace(Room* room) {
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
             if (room->place[j][i] == ID_CHEST)
-                std::cout << (char)127 << " ";
+                std::cout << (char)128 << " ";
             else if (room->place[j][i] == ID_WALL)
                 std::cout << (char)254 << " ";
             else if (room->place[j][i] == ID_DOOR) {
@@ -436,25 +436,50 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
     Enemy* enemy = &room->elements[0].enemy;
     Player* player = room->player;
 
-    while (enemy->health >0) {
+    HANDLE hEvent;
+    hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"FightEvent");
+    if (hEvent == NULL)
+        return GetLastError();
 
+    while (enemy->health >0) {
+        EnterCriticalSection(&cs);
         if (player->x < enemy->x) {
             if (player->x != enemy->x - 1 || player->y != enemy->y) 
                 enemy->x--;
+            else {
+                PulseEvent(hEvent);
+                LeaveCriticalSection(&cs);
+                continue;
+            }
         }
         else if (player->x > enemy->x) {
             if (player->x != enemy->x + 1 || player->y != enemy->y)
                 enemy->x++;
+            else {
+                PulseEvent(hEvent);
+                LeaveCriticalSection(&cs);
+                continue;
+            }
         }
         if (player->y < enemy->y) {
             if (player->x != enemy->x || player->y != enemy->y - 1)
                 enemy->y--;
+            else {
+                PulseEvent(hEvent);
+                LeaveCriticalSection(&cs);
+                continue;
+            }
         }
         else if (player->y > enemy->y) {
             if (player->x != enemy->x || player->y != enemy->y + 1)
                 enemy->y++;
+            else {
+                PulseEvent(hEvent);
+                LeaveCriticalSection(&cs);
+                continue;
+            }
         }
-
+        LeaveCriticalSection(&cs);
         Sleep(700);
     }
     
@@ -470,6 +495,7 @@ DWORD WINAPI EnemyFight(LPVOID _room) {
         return GetLastError();
 
     WaitForSingleObject(hEvent, INFINITE);
+
 
     Room* room = (Room*)_room;
 
@@ -525,6 +551,7 @@ int main()
     }*/
     Room* playingRoom = &startRoom;
     int x = 0, y = 0;
+    InitializeCriticalSection(&cs);
     while (true) {
 
         if (playingRoom->id == 0)
@@ -546,6 +573,7 @@ int main()
             PrintPlace(playingRoom);
 
             if (_kbhit() == 1) {
+                EnterCriticalSection(&cs);
                 switch (_getch()) {
                 case 'w':
                     switch (playingRoom->place[playingRoom->player->x][playingRoom->player->y - 1]) {
@@ -733,6 +761,7 @@ int main()
 
                     break;
                 }
+                LeaveCriticalSection(&cs);
             }
 
             Sleep(200);
@@ -744,6 +773,7 @@ int main()
         CloseHandle(hThreads[0]);
         CloseHandle(hThreads[1]);
     }
+    DeleteCriticalSection(&cs);
 
 }
 
