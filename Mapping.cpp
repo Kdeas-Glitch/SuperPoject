@@ -62,6 +62,7 @@ struct Room {
 };
 
 
+
 const char* get_color(bool solved) {//Цвета для всех комнат кроме краёв
     if (solved) {
         return "\033[32m"; // Зеленый
@@ -114,12 +115,18 @@ int main()
     nt.X = 6;
     nt.Left = true;
     nt.Down = true;
+    nt.Right = true;
+    nt.Top = true;
     nt.solved = true;
-    for (int i = 0; i < 11; i++)
-        rooms[i][1] = nt;
-    rooms[4][5] = nt;
-    nt.solved = false;
+    //for (int i = 0; i < 11; i++)
+    //    rooms[i][1] = nt;
+    //rooms[4][5] = nt;
+    //nt.solved = false;
     rooms[4][4] = nt;
+    rooms[1][1] = nt;
+    rooms[2][2] = nt;
+    rooms[3][3] = nt;
+    rooms[5][5] = nt;
     bool center = true;
     bool middle = false;
     std::cout << std::endl;
@@ -156,7 +163,7 @@ int main()
                         if (rooms[i / 2][j / 6].Left && left && middle) {//Проверка на то что есть проход слева(.Left) и середина(middle) и то что стенка левая(left)
                             std::cout << get_color(rooms[i / 2][j / 6].solved && rooms[i / 2][(j - 1) / 6].solved) << "=" << WHITE;//если комната которая рисуется или комната слева не решена то рисуется жёлтое равно
                         }
-                        else if (rooms[i / 2][j / 6].Right && !left && middle) {//Не работает не трогать (По идее должен вырисовывать проход справа)
+                        else if (rooms[i / 2][j / 6].Right && left && middle) {//Не работает не трогать (По идее должен вырисовывать проход справа)
                             std::cout << get_color(true) << "=" << WHITE;
                         }
                         else
@@ -185,11 +192,24 @@ int main()
                                 }
                                 if (middle && rooms[(i - 1) / 2][(j) / 6].X != -1 && rooms[(i - 1) / 2][(j) / 6].Down && i > 1 && i < 20)//Проверка на то что комната существует и есть проход снизу
                                     std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;//Нарисовать проход
-                                else
-                                    std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)196 << WHITE;//Нарисовать _
+                                else {
+                                    if(middle && rooms[(i) / 2][(j) / 6].X != -1 && rooms[(i) / 2][(j) / 6].Top && i > 1 && i < 20)
+                                    std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;//Нарисовать _
+                                    else
+                                        std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)196 << WHITE;
+                                }
                             }
                             else
                             {
+                                if ((j - 3) % 6 == 0) {//Проверка на середину комнаты
+                                    middle = true;
+                                }
+                                else {
+                                    middle = false;
+                                }
+                                if((middle && rooms[(i) / 2][(j) / 6].X != -1 && rooms[(i) / 2][(j) / 6].Top && i > 1 && i < 20))
+                                    std::cout << get_color(rooms[(i - 1) / 2][(j - 1) / 6].solved) << (char)206 << WHITE;
+                                else
                                 std::cout << get_color(rooms[i / 2][j / 6].solved) << (char)196 << WHITE;//Если конмнаты нет то _
                                 //std::cout << (char)196;
                             }
@@ -223,7 +243,7 @@ int main()
                         left = false;
                     }
                     if ((rooms[(i) / 2][(j - 1) / 6].X != -1 || rooms[(i - 1) / 2][(j) / 6].X != -1 || rooms[(i - 1) / 2][(j - 1) / 6].X != -1) && j % 6 == 0) {//Проверка на существование комнаты слева или сверху или Слева-Сверху и стена ли
-                        if (rooms[i / 2][j / 6].Right && !left && middle) {//dd(Не работает) Если есть проход справа то вывести равно
+                        if (rooms[i / 2][j / 6].Right && left && middle) {//dd(Не работает) Если есть проход справа то вывести равно
                             std::cout << get_color(true) << "=" << WHITE;
                         }
                         else
