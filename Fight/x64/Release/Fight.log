@@ -1,0 +1,21 @@
+﻿  Fight.cpp
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(17,1): warning C4129: " ": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(23,1): warning C4129: "|": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(26,1): warning C4129: "_": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(27,1): warning C4129: "|": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(34,1): warning C4129: " ": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(35,1): warning C4129: " ": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(36,1): warning C4129: "|": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(36,1): warning C4129: " ": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(37,1): warning C4129: "|": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(38,1): warning C4129: "|": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(39,1): warning C4129: "|": нераспознанная escape-последовательность символов
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(277,15): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(330,31): warning C4244: -=: преобразование "float" в "int", возможна потеря данных
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(331,31): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+D:\ProgrammingAll\3kurs\SuperPoject\Fight\Fight.cpp(393,15): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  Создание кода
+  Previous IPDB not found, fall back to full compilation.
+  All 230 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Создание кода завершено
+  Fight.vcxproj -> D:\ProgrammingAll\3kurs\SuperPoject\x64\Release\Fight.exe

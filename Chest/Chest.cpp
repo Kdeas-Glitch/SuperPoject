@@ -6,8 +6,8 @@
 #include <fstream>
 #include <string>
 
-#define URL_DATA "..\\full_project_game\\data.txt"
-#define URL_FIGHT_PROCESS L"..\\x64\\Debug\\Fight.exe "
+#define URL_DATA "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\data.txt"
+#define URL_FIGHT_PROCESS L"D:\\ProgrammingAll\\3kurs\\SuperPoject\\x64\\Release\\Fight.exe "
 
 
 using namespace std;

@@ -1,0 +1,7 @@
+﻿  Chest.cpp
+D:\ProgrammingAll\3kurs\SuperPoject\Chest\Chest.cpp(42,22): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  Создание кода
+  Previous IPDB not found, fall back to full compilation.
+  All 193 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Создание кода завершено
+  Chest.vcxproj -> D:\ProgrammingAll\3kurs\SuperPoject\x64\Release\Chest.exe

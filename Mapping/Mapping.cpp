@@ -8,6 +8,8 @@
 #define RED "\033[31m"
 #define COLOR "\033[36m"
 
+#define URL_ROOMS "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\rooms.dat"
+
 struct Enemy {
     int id;
     int x;
@@ -82,7 +84,7 @@ const char* get_color_other(int solved) {//Цвета для краёв
         return "\033[0m"; // Белый
     }
 }
-const std::string filename = "..\\full_project_game\\rooms.dat";
+const std::string filename = URL_ROOMS;
 HANDLE hMutex;
 
 void loadRooms(Room rooms[11][10]) {//чтение из файла
