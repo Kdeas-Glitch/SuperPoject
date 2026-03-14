@@ -1076,4 +1076,10 @@ int main()
     CloseHandle(hEvent[2]);
     CloseHandle(hEvent[3]);
     CloseHandle(hMutex);
+
+    if (MapisOpen) {
+        TerminateProcess(ClientApp[countmap - 1].hProcess, 0);
+        CloseHandle(ClientApp[countmap - 1].hProcess);
+        CloseHandle(ClientApp[countmap - 1].hThread);
+    }
 }

@@ -8,7 +8,7 @@
 
 #define URL_DATA "data.txt"
 #define URL_FIGHT_PROCESS L"Fight.exe "
-#define CHANCE_FOR_MIMIC 50
+#define CHANCE_FOR_MIMIC 25
 
 
 using namespace std;
