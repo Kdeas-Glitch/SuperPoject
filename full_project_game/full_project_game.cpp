@@ -28,8 +28,14 @@ struct Player {
     int y;
     int x_room;
     int y_room;
-    int hp = 1000;
+    int hp = 300;
+    int power = 40;
+    int armor = 40; // резист от атаки при защите
+    int intellect = 20; // шанс крита
+    int countOfHeal = 100;
+    int difficultyMultyplier = 1;
 };
+
 
 struct Enemy {
     int id;
@@ -61,7 +67,7 @@ union Elements {
 struct Room {
 public:
     int id = 0;
-
+    bool isLooted = false;
     int x;
     int y;
 
@@ -118,9 +124,9 @@ void saveRooms(Room* rooms[10][10]) {
         }
     }
     file.close();
-    //ReleaseMutex(hMutex);
+    ReleaseMutex(hMutex);
     Sleep(5);
-    //WaitForSingleObject(hMutex, INFINITY);
+    WaitForSingleObject(hMutex, INFINITY);
 }
 
 //макет генерации
@@ -366,8 +372,9 @@ void PrintPlace(Room* room) {
 
     if (room->elements[0].enemy.id == ID_ENEMY && room->elements[0].enemy.health > 0)
         room->place[room->elements[0].enemy.x][room->elements[0].enemy.y] = ID_ENEMY;
-    if (room->elements[1].chest.id == ID_CHEST)
+    if (room->elements[1].chest.id == ID_CHEST && room->solved && !room->isLooted)
         room->place[room->elements[1].chest.x][room->elements[1].chest.y] = ID_CHEST;
+    
 
     room->place[room->player->x][room->player->y] = ID_PLAYER;
 
@@ -447,7 +454,7 @@ void PrintPlace(Room* room) {
     std::cout << std::endl;
     std::cout << std::endl;
 
-    for (int i = 0; i < 10; i++) {
+    /*for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
             if (map[j][i] != nullptr) {
                 std::cout << map[j][i]->id << " ";
@@ -455,7 +462,7 @@ void PrintPlace(Room* room) {
             else std::cout << 0 << " ";
         }
         std::cout << std::endl;
-    }
+    }*/
 
 }
 
@@ -478,6 +485,10 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
 
     while (enemy->health > 0) {
         WaitForSingleObject(hEndEvent, INFINITE);
+        
+        if (room->player->hp <= 0) {
+            break;
+        }
         EnterCriticalSection(&cs);
         if (player->x < enemy->x) {
             if (player->x != enemy->x - 1 || player->y != enemy->y)
@@ -543,16 +554,105 @@ DWORD WINAPI EnemyFight(LPVOID _room) {
     PROCESS_INFORMATION pi;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
-    wchar_t fight_process[] = L"C:\\Users\\HardShop\\Desktop\\SuperPoject\\x64\\Debug\\Fight.exe ";
+    wchar_t fight_process[] = L"C:\\Users\\Leshu\\Desktop\\project\\full\\SuperPoject\\x64\\Debug\\Fight.exe ";
+    
+
+    Room* room = (Room*)_room;
+    std::ofstream data("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла // ЗАПИСЬ
+    if (data.is_open()) { // запись
+
+        data << room->player->hp << std::endl;
+        data << room->player->power << std::endl;
+        data << room->player->armor << std::endl;
+        data << room->player->intellect << std::endl;
+        data << room->player->countOfHeal << std::endl;
+        data << room->player->difficultyMultyplier << std::endl;
+        
+        data.close();
+    }
     if (!CreateProcess(fight_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         return GetLastError();
     }
 
     WaitForSingleObject(hEndEvent, INFINITE);
 
+    std::ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла ЧТЕНИЕ
+
+    if (file.is_open()) { // чтение
+
+        file >> room->player->hp;
+        file >> room->player->power;
+        file >> room->player->armor;
+        file >> room->player->intellect;
+        file >> room->player->countOfHeal;
+        file >> room->player->difficultyMultyplier;
+
+        file.close();
+    }
+    if (room->player->hp > 0) {
+        room->elements[0].enemy.health = 0;
+    }
+    
+
+    
+}
+
+DWORD WINAPI ChestLoot(LPVOID _room) {
+    HANDLE hEvent;
+    hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"ChestEvent");
+    if (hEvent == NULL)
+        return GetLastError();
+
+    WaitForSingleObject(hEvent, INFINITE);
+
+    HANDLE hEndEvent;
+    hEndEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"EndChestEvent");
+    if (hEndEvent == NULL)
+        return GetLastError();
+
+    ResetEvent(hEndEvent);
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    wchar_t chest_process[] = L"C:\\Users\\Leshu\\Desktop\\project\\full\\SuperPoject\\x64\\Debug\\Chest.exe ";
+   
+
     Room* room = (Room*)_room;
 
-    room->elements[0].enemy.health = 0;
+    std::ofstream data("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла // ЗАПИСЬ
+    if (data.is_open()) { // запись
+
+        data << room->player->hp << std::endl;
+        data << room->player->power << std::endl;
+        data << room->player->armor << std::endl;
+        data << room->player->intellect << std::endl;
+        data << room->player->countOfHeal << std::endl;
+        data << room->player->difficultyMultyplier << std::endl;
+
+        data.close();
+    }
+    if (!CreateProcess(chest_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        return GetLastError();
+    }
+
+    WaitForSingleObject(hEndEvent, INFINITE);
+
+    std::ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла ЧТЕНИЕ
+
+    if (file.is_open()) { // чтение
+
+        file >> room->player->hp;
+        file >> room->player->power;
+        file >> room->player->armor;
+        file >> room->player->intellect;
+        file >> room->player->countOfHeal;
+        file >> room->player->difficultyMultyplier;
+
+        file.close();
+    }
+    
 }
 
 void StartGenerate(Room* startRoom, Player* player) {
@@ -596,24 +696,44 @@ int main()
     int countmap = 0;
     STARTUPINFO siPrint;
 
+    
+
     STARTUPINFO siClient;
+    bool isFinal = false;
+    std::ofstream sbros("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\final.txt");
+    if (sbros.is_open()) {
+        sbros << isFinal << std::endl;
+    }
 
     ZeroMemory(&siClient, sizeof(siClient));
     ZeroMemory(&siPrint, sizeof(siPrint));
 
-    wchar_t mapping[255] = L"C:\\Users\\HardShop\\Desktop\\SuperPoject\\x64\\Debug\\Mapping.exe ";
+    wchar_t mapping[255] = L"C:\\Users\\Leshu\\Desktop\\project\\full\\SuperPoject\\x64\\Debug\\Mapping.exe ";
 
-    HANDLE hEvent[4];
+    HANDLE hEvent[5];
     hEvent[0] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"FightEvent");
     hEvent[1] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"ChestEvent");
     hEvent[2] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"MapEvent");
     hEvent[3] = CreateEvent(NULL, TRUE, TRUE, (LPCWSTR)"EndFightEvent");
-    if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL || hEvent[3] == NULL)
+    hEvent[4] = CreateEvent(NULL, TRUE, TRUE, (LPCWSTR)"EndChestEvent");
+    if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL || hEvent[3] == NULL || hEvent[4] == NULL)
         return GetLastError();
 
     Room startRoom;
     Player player;
+    std::ofstream data("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла // ЗАПИСЬ
+    if (data.is_open()) { // запись
 
+        data << player.hp << std::endl;
+        data << player.power << std::endl;
+        data << player.armor << std::endl;
+        data << player.intellect << std::endl;
+        data << player.countOfHeal << std::endl;
+        data << player.difficultyMultyplier << std::endl;
+        
+
+        data.close();
+    }
     StartGenerate(&startRoom, &player);
 
     /*for (int i = 0; i < 256; i++) {
@@ -633,21 +753,39 @@ int main()
     std::cout << "              3-Hard                  " << std::endl;
     int difficulty = _getch();
 
-
+    bool isBoss = false;
+    
+    
     if (difficulty == '1' || difficulty=='2'||difficulty=='3') {
-        while (true) {
+        while (player.hp > 0 && !isFinal) { 
 
             if (playingRoom->id == 0)
                 GenerateRoom(playingRoom, &player, x, y);
-            if (playingRoom->id == 15) {
-
-
-                //тут Босс
+            if (playingRoom->id >= 5) { // БОСС
+                isBoss = true;
+                std::ofstream inBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
+                if (inBoss.is_open()) {
+                    inBoss << isBoss;
+                    inBoss.close(); 
+                }
+               
+                
+            }
+            else {
+                isBoss = false;
+                std::ofstream inBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
+                if (inBoss.is_open()) {
+                    inBoss << isBoss;
+                    inBoss.close();
+                }
             }
             saveRooms(map);
             HANDLE hThreads[2];
             DWORD IDThreads[2];
+            DWORD IDChest;
+            HANDLE hChest[1];
             bool hasEnemy = false;
+            bool hasChest = false;
             if (playingRoom->elements[0].enemy.id == ID_ENEMY) {
                 hasEnemy = true;
                 hThreads[0] = CreateThread(NULL, 0, EnemyGameplay, playingRoom, NULL, &IDThreads[0]);
@@ -657,12 +795,52 @@ int main()
                 hThreads[1] = CreateThread(NULL, 0, EnemyFight, playingRoom, NULL, &IDThreads[1]);
                 if (hThreads[1] == NULL)
                     return GetLastError();
+
+            }
+            if (playingRoom->elements[1].chest.id == ID_CHEST) {
+                hasChest = true;
+                hChest[0] = CreateThread(NULL, 0, ChestLoot, playingRoom, NULL, &IDChest);
+                if (hChest[0] == NULL) {
+                    return GetLastError();
+                }
             }
             bool solvedRoom = false;
             while (solvedRoom != true) {
                 PrintPlace(playingRoom);
 
                 WaitForSingleObject(hEvent[3], INFINITE);
+                WaitForSingleObject(hEvent[4], INFINITE);
+                std::ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла ЧТЕНИЕ
+
+                if (file.is_open()) { // чтение
+
+                    file >> playingRoom->player->hp;
+                    file >> playingRoom->player->power;
+                    file >> playingRoom->player->armor;
+                    file >> playingRoom->player->intellect;
+                    file >> playingRoom->player->countOfHeal;
+                    file >> playingRoom->player->difficultyMultyplier;
+                   
+
+                    file.close();
+                }
+                
+                std::ifstream finalGame("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\final.txt"); // Открытие файла
+
+                if (finalGame.is_open()) { // чтение
+
+                    finalGame >> isFinal;
+                    finalGame.close();
+                }
+
+                if (isFinal) {
+                    break;
+                }
+
+                if (player.hp <= 0)
+                {
+                    break;
+                }
 
                 if (_kbhit() == 1) {
                     EnterCriticalSection(&cs);
@@ -677,6 +855,7 @@ int main()
                             break;
                         case ID_CHEST:
                             PulseEvent(hEvent[1]);
+                            playingRoom->isLooted = true;
                             break;
                         case ID_DOOR:
                             if (playingRoom->solved == true) {
@@ -724,6 +903,7 @@ int main()
                             break;
                         case ID_CHEST:
                             PulseEvent(hEvent[1]);
+                            playingRoom->isLooted = true;
                             break;
                         case ID_DOOR:
                             if (playingRoom->solved == true) {
@@ -771,6 +951,7 @@ int main()
                             break;
                         case ID_CHEST:
                             PulseEvent(hEvent[1]);
+                            playingRoom->isLooted = true;
                             break;
                         case ID_DOOR:
                             if (playingRoom->solved == true) {
@@ -818,6 +999,7 @@ int main()
                             break;
                         case ID_CHEST:
                             PulseEvent(hEvent[1]);
+                            playingRoom->isLooted = true;
                             break;
                         case ID_DOOR:
                             if (playingRoom->solved == true) {
@@ -886,11 +1068,25 @@ int main()
                 CloseHandle(hThreads[0]);
                 CloseHandle(hThreads[1]);
             }
+            if (hasChest) {
+                CloseHandle(hChest[0]);
+            }
         }
     }
     else {
         std::cout << "        БЫЛО СКАЗАННО 1-3!!!!           " << std::endl;
     }
+    system("cls");
+    if (player.hp <= 0) {
+
+        std::cout << "you lose etc...";
+        _getch();
+    }
+    else {
+        std::cout << "you win etc...";
+        _getch();
+    }
+   
     DeleteCriticalSection(&cs);
     CloseHandle(hEvent[0]);
     CloseHandle(hEvent[1]);

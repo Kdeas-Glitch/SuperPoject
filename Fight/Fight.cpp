@@ -1,4 +1,5 @@
-﻿#include <ctime>
+﻿#include <cstdlib> 
+#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <windows.h>
@@ -7,16 +8,16 @@
 #include <iomanip>
 using namespace std;
 const string SLIME[] = {
-"                         **************             ",
-"                     //*******************\\\             ",
-"                    /**                   **\\*             ",
-"                   *//                        **\\            ",
-"                  *//                            \\* ",
-"                 */      |||_         *||_        \\*             ",
-"                */       ||||    ||___|||||^       \\*             ",
-"               */         *\||||||||||/*             \\*             ",
-"              */*           ********/*               \\*             ",
-"              /*          ***      ***               \\*             ",
+"                         **************                                 ",
+"                     //*******************\\\                             ",
+"                    /**                   **\\*                          ",
+"                   *//                        **\\                       ",
+"                  *//                            \\*                     ",
+"                 */      |||_         *||_        \\*                    ",
+"                */       ||||    ||___|||||^       \\*                   ",
+"               */         *\||||||||||/*             \\*                 ",
+"              */*           ********/*               \\*                 ",
+"              /*          ***      ***               \\*                 ",
 "             /*          ||||\___/||||                \\*             ",
 "             |           \|||||||||/                  \\*             ",
 "            /|                                       ||             ",
@@ -32,74 +33,241 @@ const string SLIME[] = {
 "               \|||||||||||||||||||||||||||||||////",
 "                  *\\\||||||||||||||||||||||/*",
 };
-const string CYCLOP = R"(
-                       _______________
-                   .-'               '-.
-                 .'                     '.
-                /                         \
-               |          _____            |
-               |        .'     '.          |
-               |       /   _     \         |
-               |      |   (_)     |        |
-               |      |           |        |
-               |       \         /         |
-               |        '._   _.'          |
-               |           '-'             |
-               |      _____________        |
-               |    / | | | | | | | \      |
-               |   |  |_|_|_|_|_|_|  |     |
-               |    \_______________/      |
-                \                          /
-                 '.                      .'
-                   '-.                .-'
-                      '-..........-'
-)";
-//const string ANTMAN = R"(
-//                          ______________
-//                      .-'               '-.
-//                    .'    _         _      '.
-//                   /    .' '.     .' '.      \
-//                  |    /      \   /      \    |
-//                  |   |   O    | |    O   |   |
-//                  |    \      /   \      /    |
-//                   \    '.__.'     '.__.'    /
-//                    '.         ___         .'
-//                      '-.__   /   \   __.-'
-//                           \ |     | /
-//                            \|     |/
-//                          ___|     |___
-//                         /   |     |   \
-//                        /    |     |    \
-//                       /     |     |     \
-//                      /      |     |      \
-//                     '       |     |       '
-//)";
+const string CYCLOP[] = {
+"                       _______________                    ",
+"                   .-'               '-.                  ",
+"                 .'                     '.                ",
+"                /                         \\               ",
+"               |          _____            |              ",
+"               |        .'     '.          |              ",
+"               |       /   _     \\         |              ",
+"               |      |   (_)     |        |             ",
+"               |      |           |        |             ",
+"               |       \\         /         |             ",
+"               |        '._   _.'          |             ",
+"               |           '-'             |             ",
+"               |      _____________        |             ",
+"               |    / | | | | | | | \\      |             ",
+"               |   |  |_|_|_|_|_|_|  |     |             ",
+"               |    \\_______________/      |             ",
+"                \\                         /              ",
+"                 '.                      .'               ",
+"                   '-.              ....-'                ",
+"                      '-..........-'                      ",
+};
+const string ANTMAN[] = {
+"                                                                      ",
+"                                                                      ",
+"                                                                      ",
+"                       ______________                                 ",
+"                   .-'               '-.                              ",
+"                 .'    _           _    '.                            ",
+"                /    .' '.       .' '.    \\                           ",
+"               |    /      \\   /      \\   |                      ",
+"               |   |   O    | |    O   |  |                      ",
+"               |    \\      /   \\      /   |                      ",
+"                \\    '.__.'     '.__.'   /                      ",
+"                 '.         ___         .'                        ",
+"                   '-.__   /   \\   __.-'              ",
+"                       \\ |     | /                   ",
+"                        \\|     |/                    ",
+"                       ___|     |___                  ",
+"                     /   |     |   \\                 ",
+"                    /    |     |    \\                ",
+"                   /     |     |     \\               ",
+"                  /      |     |      \\              ",
+"                 '       |     |        '             ",
+};
+const string BOSS[] = {
+    "              @@@@@@@@@@@@@@@              ",
+    "           @@%%%%%%%%%%%%%%%@@             ",
+    "         @@%%###############%%@@           ",
+    "        @%##(((((((((((((((((##%@          ",
+    "       @%#((((((((((((((((((((#%@          ",
+    "       @#((((((((((((((((((((((#@          ",
+    "       @#((((((((((((((((((((((#@          ",
+    "       @%#((((((((((((((((((((#%@          ",
+    "        @%##(((((((((((((((##%@            ",
+    "         @@%%###############%%@@           ",
+    "           @@%%%%%%%%%%%%%%%@@             ",
+    "              @@@@@@@@@@@@@@@              ",
+    "               @@         @@               ",
+    "              @@@@       @@@@              ",
+    "             @@@@@@     @@@@@@             ",
+    "            @@@@@@@@   @@@@@@@@            ",
+    "           @@@@@@@@@@ @@@@@@@@@@           ",
+    "          @@@@@@@@@@@@@@@@@@@@@@@          ",
+    "         @@@@@@@@@@@@@@@@@@@@@@@@@         ",
+    "        @@@@@@@@@@@@@@@@@@@@@@@@@@@        "
+};
 struct Player
 {
-    int x = 5;
-    int y = 5;
-    int hp = 100;
-    int power = 13;
-    int armor = 51; // резист от атаки при защите
-    int intellect = 22; // шанс крита
-    int countOfHeal = 7;
-    int difficultyMultyplier = 2;
+    int hp;
+    int power;
+    int armor; // резист от атаки при защите
+    int intellect; // шанс крита
+    int countOfHeal;
+    int difficultyMultyplier;
 };
 struct Enemy
 {
-    string name = "Слайм";
-    int x = 5;
-    int y = 5;
+    string name = "";
     int hp = 100;
-    int power = 28;
+    int power = 13;
     int armor = 7;
     int chanceOfCrit = 10;
 };
+
 struct Data { // структура для передачи в поток Fight
     Enemy* en;
     Player* pl;
 };
+bool isBoss = false;
+void UpdateInterface(Enemy& enemy, Player& player, string linesPlayer[]) {
+    system("cls");
+
+
+    string lines[6] = {
+        "ВРАГ: " + enemy.name,
+        "Характеристики врага:",
+        "HP: " + to_string(enemy.hp),
+        "Сила: " + to_string(enemy.power),
+        "Броня: " + to_string(enemy.armor),
+        "Шанс крита: " + to_string(enemy.chanceOfCrit)
+    };
+
+
+    string updatedLinesPlayer[7] = {
+        "ИГРОК",
+        "Характеристики игрока:",
+        "HP: " + to_string(player.hp),
+        "Сила: " + to_string(player.power),
+        "Броня: " + to_string(player.armor),
+        "Интеллект: " + to_string(player.intellect),
+        "Зелья здоровья(шт): " + to_string(player.countOfHeal),
+
+    };
+
+    int count = 6;
+    int countPlayer = 7;
+    int maxLines = 23;
+
+    if (enemy.name == "Слайм") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 23) {
+                cout << setw(40) << left << SLIME[i];
+            }
+            else {
+                cout << setw(40) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(21) << left << lines[i];
+            }
+            else {
+                cout << setw(21) << left << " ";
+            }
+            cout << "    ";
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+    else if (enemy.name == "Циклоп") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 20) {
+                cout << setw(20) << left << CYCLOP[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(25) << left << lines[i];
+            }
+            else {
+                cout << setw(25) << left << " ";
+            }
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+    else if (enemy.name == "Человек-Муравей") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 20) {
+                cout << setw(40) << left << ANTMAN[i];
+            }
+            else {
+                cout << setw(40) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(28) << left << lines[i];
+            }
+            else {
+                cout << setw(28) << left << " ";
+            }
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+    else if (enemy.name == "БОСС") {
+        for (int i = 0; i < maxLines; i++) {
+            if (i < 20) {
+                cout << setw(40) << left << BOSS[i];
+            }
+            else {
+                cout << setw(40) << left << " ";
+            }
+
+            if (i < count) {
+                cout << setw(28) << left << lines[i];
+            }
+            else {
+                cout << setw(28) << left << " ";
+            }
+
+            if (i < countPlayer) {
+                cout << setw(20) << left << updatedLinesPlayer[i];
+            }
+            else {
+                cout << setw(20) << left << " ";
+            }
+
+            cout << endl;
+        }
+    }
+
+    cout << "\nУправление: 1 - Атака | 2 - Защита | 3 - Лечение\n";
+    if (player.hp <= 0) {
+        cout << "Вы проиграли\n";
+    }
+    else if (enemy.hp <= 0) {
+        cout << "Вы победили\n";
+    }
+}
 bool isFight = true;
+string action = "";
 DWORD WINAPI Fight(LPVOID lpParam) {
     srand(time(0));
     Data* data = (Data*)lpParam;
@@ -110,8 +278,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
     e->power *= p->difficultyMultyplier;
     e->chanceOfCrit *= p->difficultyMultyplier;
 
-    cout << "ВРАГ: " << e->name << endl << "Характеристики врага:\n" << p->hp << "\n" << p->power << "\n" << p->intellect << endl;
-    cout << "Статы врага:\n" << e->hp << "\n" << e->power << "\n" << e->chanceOfCrit << endl;
+
     HANDLE eAttack = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"eAttack");
     HANDLE eDefend = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"eDefend");
     HANDLE eHeal = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"eHeal");
@@ -119,7 +286,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
 
 
     while (isFight) {
-
+        
         if (p->hp <= 0) {
             cout << "Вы проиграли, нажмите любую кнопку" << endl;
             isFight = false;
@@ -133,28 +300,29 @@ DWORD WINAPI Fight(LPVOID lpParam) {
         // event не занят - по кнопке бьем/защищаемся/лечимся
         if (WaitForSingleObject(eAttack, 0) != WAIT_TIMEOUT) {
 
-            cout << "Удар\n";
+            action += "Удар ";
             int chanceCritPlayer = rand() % 100;
             int dmgPlayer = p->power;
             int chanceCritEnemy = rand() % 100;
             int dmgEnemy = e->power;
             if (chanceCritPlayer < p->intellect + 1) {
                 dmgPlayer *= 2;
-                cout << "Крит у игрока\n";
+
+                action += "\n(Крит у игрока)";
             }
             e->hp -= dmgPlayer;
             if (chanceCritEnemy < e->chanceOfCrit + 1) {
                 dmgEnemy *= 2;
-                cout << "Крит у врага\n";
+                action += "\n(Крит у врага)";
             }
             p->hp -= dmgEnemy;
-            cout << "Хп игрока: " << p->hp << "\nХп врага: " << e->hp << endl;
+
             ResetEvent(eAttack);
         }
 
         if (WaitForSingleObject(eDefend, 0) != WAIT_TIMEOUT) {
             cout << "Защита\n";
-            p->hp -= e->power * (p->armor / 100);
+            p->hp -= e->power * ((float)p->armor / 100.0f);
             e->hp -= p->power * 0.2;
             cout << "Хп игрока: " << p->hp << "\nХп врага: " << e->hp << endl;
             ResetEvent(eDefend);
@@ -174,6 +342,8 @@ DWORD WINAPI Fight(LPVOID lpParam) {
         }
     }
 
+
+
     CloseHandle(eAttack);
     CloseHandle(eDefend);
     CloseHandle(eHeal);
@@ -183,6 +353,7 @@ DWORD WINAPI Fight(LPVOID lpParam) {
 
 int main()
 {
+    srand(time(NULL));
     setlocale(LC_ALL, "rus");
     HANDLE eAttack = CreateEvent(NULL, TRUE, FALSE, L"eAttack");
     HANDLE eDefend = CreateEvent(NULL, TRUE, FALSE, L"eDefend");
@@ -199,51 +370,70 @@ int main()
     if (hEndEvent == NULL)
         return GetLastError();
 
+    ResetEvent(hEndEvent);
     Data data;
     Enemy enemy;
     Player player;
+    ifstream outBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
+    if (outBoss.is_open()) {
+        outBoss >> isBoss;
+        outBoss.close();
+    }
+
+    string names[] = {
+        "Слайм",
+        "Человек-Муравей",
+        "Циклоп",
+    };
+
+    if (isBoss) {
+        enemy.name = "БОСС";
+        enemy.armor *= 10;
+        enemy.hp *= 10;
+        enemy.power *= 10;
+        enemy.chanceOfCrit *= 2;
+    }
+    else {
+        int randomMonster = rand() % 3;
+        enemy.name = names[randomMonster];
+    }
+
+    ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла
+
+    if (file.is_open()) { // чтение
+
+        file >> player.hp;
+        file >> player.power;
+        file >> player.armor;
+        file >> player.intellect;
+        file >> player.countOfHeal;
+        file >> player.difficultyMultyplier;
+
+        file.close();
+    }
 
     data.en = &enemy;
     data.pl = &player;
-    string lines[] = {
-        "ВРАГ: " + enemy.name,
-        "Характеристики врага:",
-        "HP: " + to_string(enemy.hp),
-        "Сила: " + to_string(enemy.power),
-        "Интеллект: " + to_string(enemy.chanceOfCrit)
-    };
-    int count = 5;
-    int linesCount = 25;
-    int maxLines = max(linesCount, count);
 
-
-    if (enemy.name == "Слайм") {
-        for (int i = 0; i < maxLines; i++) {
-            if (i < linesCount) {
-                cout << setw(90) << left << SLIME[i];
-            }
-            else {
-                cout << setw(90) << left << " ";
-            }
-            if (i < count) {
-                cout << lines[i];
-            }
-            cout << endl;
-        }
-    }
-    if (enemy.name == "Циклоп") {
-        cout << CYCLOP;
-    }
-    /*if (enemy.name == "Человек-Муравей") {
-        cout << ANTMAN;
-    }*/
     DWORD IDThread;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Fight, &data, NULL, &IDThread);
     if (hThread == NULL)
         return GetLastError();
 
+    string linesPlayer[7] = {
+        "ИГРОК",
+        "Характеристики игрока:",
+        "HP: " + to_string(player.hp),
+        "Сила: " + to_string(player.power),
+        "Броня: " + to_string(player.armor),
+        "Интеллект: " + to_string(player.intellect),
+        "Зелья здоровья(шт): " + to_string(player.countOfHeal),
+    };
 
     while (isFight) {
+        UpdateInterface(enemy, player, linesPlayer);
+        cout << action;
+        action = "";
         switch (_getch()) {
         case 49:
             SetEvent(eAttack);
@@ -257,9 +447,8 @@ int main()
         default:break;
         }
     }
-
-
-    ofstream fout("data.txt");
+    bool isFinal = false;
+    ofstream fout("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt");
     if (fout.is_open()) {
         fout << player.hp << endl;
         fout << player.power << endl;
@@ -268,9 +457,20 @@ int main()
         fout << player.countOfHeal << endl;
         fout << player.difficultyMultyplier << endl;
         fout.close();
-        std::cout << "Файл успешно записан." << std::endl;
     }
+    if (isBoss && enemy.hp <= 0) {
+        isFinal = true;
+        ofstream fout("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\final.txt");
+        if (fout.is_open()) {
+            fout << isFinal << endl;
+
+            fout.close();
+        }
+    }
+        
+    
     if (player.hp <= 0 && !isFight) {
+
         while (true) {
             if (_getch() != NULL) {
                 SetEvent(hEndEvent);
@@ -285,7 +485,6 @@ int main()
             switch (_getch()) {
             case 51:
                 SetEvent(hEndEvent);
-
                 TerminateProcess(GetCurrentProcess(), 1);
                 break;
             default:
