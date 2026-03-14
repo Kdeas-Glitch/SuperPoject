@@ -6,8 +6,9 @@
 #include <fstream>
 #include <string>
 
-#define URL_DATA "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\data.txt"
-#define URL_FIGHT_PROCESS L"D:\\ProgrammingAll\\3kurs\\SuperPoject\\x64\\Release\\Fight.exe "
+#define URL_DATA "data.txt"
+#define URL_FIGHT_PROCESS L"Fight.exe "
+#define CHANCE_FOR_MIMIC 50
 
 
 using namespace std;
@@ -66,7 +67,7 @@ DWORD WINAPI Chest(LPVOID lpParam) {
         if (WaitForSingleObject(chestOpen, 0) != WAIT_TIMEOUT) {
             int chanceLoot = rand() % 100;
             int chanceMimik = rand() % 100;
-            if (chanceMimik <= 10) {
+            if (chanceMimik <= CHANCE_FOR_MIMIC) {
 
                 if (!CreateProcess(figth_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
                     return GetLastError();

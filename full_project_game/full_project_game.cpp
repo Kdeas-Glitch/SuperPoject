@@ -18,12 +18,12 @@
 #define CHANCE_FOR_ENEMY 70
 #define CHANCE_FOR_CHEST 70
 #define CHANCE_FOR_TRAP 75
-#define URL_DATA "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\data.txt"
-#define URL_BOSS "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\boss.txt"
-#define URL_FINAL "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\final.txt"
-#define URL_FIGHT_PROCESS L"D:\\ProgrammingAll\\3kurs\\SuperPoject\\x64\\Release\\Fight.exe "
-#define URL_CHEST_PROCESS L"D:\\ProgrammingAll\\3kurs\\SuperPoject\\x64\\Release\\Chest.exe "
-#define URL_MAP_PROCESS L"D:\\ProgrammingAll\\3kurs\\SuperPoject\\x64\\Release\\Mapping.exe "
+#define URL_DATA "data.txt"
+#define URL_BOSS "boss.txt"
+#define URL_FINAL "final.txt"
+#define URL_FIGHT_PROCESS L"Fight.exe "
+#define URL_CHEST_PROCESS L"Chest.exe "
+#define URL_MAP_PROCESS L"Mapping.exe "
 #define COUNT_FOR_END 15
 
 

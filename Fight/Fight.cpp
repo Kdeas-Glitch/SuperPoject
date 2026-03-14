@@ -7,9 +7,9 @@
 #include <string>
 #include <iomanip>
 
-#define URL_DATA "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\data.txt"
-#define URL_BOSS "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\boss.txt"
-#define URL_FINAL "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\final.txt"
+#define URL_DATA "data.txt"
+#define URL_BOSS "boss.txt"
+#define URL_FINAL "final.txt"
 
 using namespace std;
 const string SLIME[] = {

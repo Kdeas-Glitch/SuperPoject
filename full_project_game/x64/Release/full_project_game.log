@@ -2,8 +2,8 @@
 D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(136,33): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
   Создание кода
   Previous IPDB not found, fall back to full compilation.
-D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(624): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
 D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(668): warning C4715: ChestLoot: значение возвращается не при всех путях выполнения
+D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(624): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
   All 191 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Создание кода завершено
   full_project_game.vcxproj -> D:\ProgrammingAll\3kurs\SuperPoject\x64\Release\full_project_game.exe

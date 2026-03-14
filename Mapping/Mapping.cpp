@@ -8,7 +8,7 @@
 #define RED "\033[31m"
 #define COLOR "\033[36m"
 
-#define URL_ROOMS "D:\\ProgrammingAll\\3kurs\\SuperPoject\\full_project_game\\rooms.dat"
+#define URL_ROOMS "rooms.dat"
 
 struct Enemy {
     int id;
