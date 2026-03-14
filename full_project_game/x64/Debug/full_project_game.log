@@ -1,6 +1,5 @@
 ﻿  full_project_game.cpp
-C:\Users\Leshu\Desktop\project\full\SuperPoject\full_project_game\full_project_game.cpp(129,33): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
-C:\Users\Leshu\Desktop\project\full\SuperPoject\full_project_game\full_project_game.cpp(694,33): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
-C:\Users\Leshu\Desktop\project\full\SuperPoject\full_project_game\full_project_game.cpp(656,1): warning C4715: ChestLoot: значение возвращается не при всех путях выполнения
-C:\Users\Leshu\Desktop\project\full\SuperPoject\full_project_game\full_project_game.cpp(598,1): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
-  full_project_game.vcxproj -> C:\Users\Leshu\Desktop\project\full\SuperPoject\x64\Debug\full_project_game.exe
+D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(136,33): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
+D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(624,1): warning C4715: EnemyFight: значение возвращается не при всех путях выполнения
+D:\ProgrammingAll\3kurs\SuperPoject\full_project_game\full_project_game.cpp(668,1): warning C4715: ChestLoot: значение возвращается не при всех путях выполнения
+  full_project_game.vcxproj -> D:\ProgrammingAll\3kurs\SuperPoject\x64\Debug\full_project_game.exe

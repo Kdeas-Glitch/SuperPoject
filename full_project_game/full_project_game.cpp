@@ -18,6 +18,13 @@
 #define CHANCE_FOR_ENEMY 70
 #define CHANCE_FOR_CHEST 70
 #define CHANCE_FOR_TRAP 75
+#define URL_DATA "..\\full_project_game\\data.txt"
+#define URL_BOSS "..\\full_project_game\\boss.txt"
+#define URL_FINAL "..\\full_project_game\\final.txt"
+#define URL_FIGHT_PROCESS L"..\\x64\\Debug\\Fight.exe "
+#define URL_CHEST_PROCESS L"..\\x64\\Debug\\Chest.exe "
+#define URL_MAP_PROCESS L"..\\x64\\Debug\\Mapping.exe "
+#define COUNT_FOR_END 15
 
 
 CRITICAL_SECTION cs;
@@ -472,7 +479,7 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
     Room* room = (Room*)_room;
     Enemy* enemy = &room->elements[0].enemy;
     Player* player = room->player;
-
+    
     HANDLE hEvent;
     hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"FightEvent");
     if (hEvent == NULL)
@@ -535,30 +542,8 @@ DWORD WINAPI EnemyGameplay(LPVOID _room) {
     return 0;
 }
 
-DWORD WINAPI EnemyFight(LPVOID _room) {
-    HANDLE hEvent;
-    hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"FightEvent");
-    if (hEvent == NULL)
-        return GetLastError();
-
-    WaitForSingleObject(hEvent, INFINITE);
-
-    HANDLE hEndEvent;
-    hEndEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"EndFightEvent");
-    if (hEndEvent == NULL)
-        return GetLastError();
-
-    ResetEvent(hEndEvent);
-
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    wchar_t fight_process[] = L"C:\\Users\\Leshu\\Desktop\\project\\full\\SuperPoject\\x64\\Debug\\Fight.exe ";
-    
-
-    Room* room = (Room*)_room;
-    std::ofstream data("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла // ЗАПИСЬ
+void PrintToData(Room* room) {
+    std::ofstream data(URL_DATA); // Открытие файла // ЗАПИСЬ
     if (data.is_open()) { // запись
 
         data << room->player->hp << std::endl;
@@ -567,16 +552,13 @@ DWORD WINAPI EnemyFight(LPVOID _room) {
         data << room->player->intellect << std::endl;
         data << room->player->countOfHeal << std::endl;
         data << room->player->difficultyMultyplier << std::endl;
-        
+
         data.close();
     }
-    if (!CreateProcess(fight_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        return GetLastError();
-    }
+}
 
-    WaitForSingleObject(hEndEvent, INFINITE);
-
-    std::ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла ЧТЕНИЕ
+void ReadFromData(Room* room) {
+    std::ifstream file(URL_DATA); // Открытие файла ЧТЕНИЕ
 
     if (file.is_open()) { // чтение
 
@@ -589,8 +571,52 @@ DWORD WINAPI EnemyFight(LPVOID _room) {
 
         file.close();
     }
-    if (room->player->hp > 0) {
-        room->elements[0].enemy.health = 0;
+}
+
+DWORD WINAPI EnemyFight(LPVOID _room) {
+    HANDLE hEvent;
+    hEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"FightEvent");
+    if (hEvent == NULL)
+        return GetLastError();
+
+    WaitForSingleObject(hEvent, INFINITE);
+
+    HANDLE hMutex;
+    hMutex = OpenMutex(SYNCHRONIZE, FALSE, (LPCWSTR)"MutexForProcesses");
+    if (hMutex == NULL)
+        return GetLastError();
+
+    if (WaitForSingleObject(hMutex, 0) == WAIT_OBJECT_0) {
+        HANDLE hEndEvent;
+        hEndEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"EndFightEvent");
+        if (hEndEvent == NULL)
+            return GetLastError();
+
+        ResetEvent(hEndEvent);
+
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        ZeroMemory(&si, sizeof(si));
+        si.cb = sizeof(si);
+        wchar_t fight_process[] = URL_FIGHT_PROCESS;
+
+
+        Room* room = (Room*)_room;
+
+        PrintToData(room);
+
+        if (!CreateProcess(fight_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+            return GetLastError();
+        }
+
+        WaitForSingleObject(hEndEvent, INFINITE);
+
+        ReadFromData(room);
+
+        if (room->player->hp > 0) {
+            room->elements[0].enemy.health = 0;
+        }
+        ReleaseMutex(hMutex);
     }
     
 
@@ -605,52 +631,38 @@ DWORD WINAPI ChestLoot(LPVOID _room) {
 
     WaitForSingleObject(hEvent, INFINITE);
 
-    HANDLE hEndEvent;
-    hEndEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"EndChestEvent");
-    if (hEndEvent == NULL)
+    HANDLE hMutex;
+    hMutex = OpenMutex(SYNCHRONIZE, FALSE, (LPCWSTR)"MutexForProcesses");
+    if (hMutex == NULL)
         return GetLastError();
 
-    ResetEvent(hEndEvent);
+    if (WaitForSingleObject(hMutex, 0) == WAIT_OBJECT_0) {
 
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    wchar_t chest_process[] = L"C:\\Users\\Leshu\\Desktop\\project\\full\\SuperPoject\\x64\\Debug\\Chest.exe ";
-   
+        HANDLE hEndEvent;
+        hEndEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"EndChestEvent");
+        if (hEndEvent == NULL)
+            return GetLastError();
 
-    Room* room = (Room*)_room;
+        ResetEvent(hEndEvent);
 
-    std::ofstream data("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла // ЗАПИСЬ
-    if (data.is_open()) { // запись
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        ZeroMemory(&si, sizeof(si));
+        si.cb = sizeof(si);
+        wchar_t chest_process[] = URL_CHEST_PROCESS;
 
-        data << room->player->hp << std::endl;
-        data << room->player->power << std::endl;
-        data << room->player->armor << std::endl;
-        data << room->player->intellect << std::endl;
-        data << room->player->countOfHeal << std::endl;
-        data << room->player->difficultyMultyplier << std::endl;
 
-        data.close();
-    }
-    if (!CreateProcess(chest_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        return GetLastError();
-    }
+        Room* room = (Room*)_room;
 
-    WaitForSingleObject(hEndEvent, INFINITE);
+        PrintToData(room);
+        if (!CreateProcess(chest_process, NULL, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+            return GetLastError();
+        }
 
-    std::ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла ЧТЕНИЕ
+        WaitForSingleObject(hEndEvent, INFINITE);
 
-    if (file.is_open()) { // чтение
-
-        file >> room->player->hp;
-        file >> room->player->power;
-        file >> room->player->armor;
-        file >> room->player->intellect;
-        file >> room->player->countOfHeal;
-        file >> room->player->difficultyMultyplier;
-
-        file.close();
+        ReadFromData(room);
+        ReleaseMutex(hMutex);
     }
     
 }
@@ -682,6 +694,23 @@ void StartGenerate(Room* startRoom, Player* player) {
     }
 }
 
+void PrintToBoss(bool*isBoss) {
+    std::ofstream inBoss(URL_BOSS);
+    if (inBoss.is_open()) {
+        inBoss << *isBoss;
+        inBoss.close();
+    }
+}
+
+void CheckTrap(Room*playingRoom) {
+    for (int i = 2; i < 5; i++) {
+        if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
+            playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
+            break;
+        }
+    }
+}
+
 int main()
 {
     setlocale(LC_ALL, ".UTF16");
@@ -691,24 +720,21 @@ int main()
     {
         return  GetLastError();
     }
-    WaitForSingleObject(hMutex, INFINITY);
+    WaitForSingleObject(hMutex, INFINITE);
     PROCESS_INFORMATION ClientApp[100];
-    int countmap = 0;
     STARTUPINFO siPrint;
-
-    
-
     STARTUPINFO siClient;
+    ZeroMemory(&siClient, sizeof(siClient));
+    ZeroMemory(&siPrint, sizeof(siPrint));
+    int countmap = 0;
     bool isFinal = false;
-    std::ofstream sbros("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\final.txt");
+    
+    std::ofstream sbros(URL_FINAL);
     if (sbros.is_open()) {
         sbros << isFinal << std::endl;
     }
 
-    ZeroMemory(&siClient, sizeof(siClient));
-    ZeroMemory(&siPrint, sizeof(siPrint));
-
-    wchar_t mapping[255] = L"C:\\Users\\Leshu\\Desktop\\project\\full\\SuperPoject\\x64\\Debug\\Mapping.exe ";
+    wchar_t mapping[255] = URL_MAP_PROCESS;
 
     HANDLE hEvent[5];
     hEvent[0] = CreateEvent(NULL, TRUE, FALSE, (LPCWSTR)"FightEvent");
@@ -719,21 +745,15 @@ int main()
     if (hEvent[0] == NULL || hEvent[1] == NULL || hEvent[2] == NULL || hEvent[3] == NULL || hEvent[4] == NULL)
         return GetLastError();
 
+    HANDLE hMutex;
+    hMutex = CreateMutex(NULL, FALSE, (LPCWSTR)"MutexForProcesses");
+    if (hMutex == NULL)
+        return GetLastError();
+
     Room startRoom;
     Player player;
-    std::ofstream data("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла // ЗАПИСЬ
-    if (data.is_open()) { // запись
-
-        data << player.hp << std::endl;
-        data << player.power << std::endl;
-        data << player.armor << std::endl;
-        data << player.intellect << std::endl;
-        data << player.countOfHeal << std::endl;
-        data << player.difficultyMultyplier << std::endl;
-        
-
-        data.close();
-    }
+    startRoom.player = &player;
+    PrintToData(&startRoom);
     StartGenerate(&startRoom, &player);
 
     /*for (int i = 0; i < 256; i++) {
@@ -761,29 +781,17 @@ int main()
 
             if (playingRoom->id == 0)
                 GenerateRoom(playingRoom, &player, x, y);
-            if (playingRoom->id >= 5) { // БОСС
-                isBoss = true;
-                std::ofstream inBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
-                if (inBoss.is_open()) {
-                    inBoss << isBoss;
-                    inBoss.close(); 
-                }
-               
-                
-            }
-            else {
-                isBoss = false;
-                std::ofstream inBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
-                if (inBoss.is_open()) {
-                    inBoss << isBoss;
-                    inBoss.close();
-                }
-            }
+
+            if (playingRoom->id >= COUNT_FOR_END) isBoss = true;//босс или нет
+            else isBoss = false;
+
+            PrintToBoss(&isBoss);
             saveRooms(map);
             HANDLE hThreads[2];
             DWORD IDThreads[2];
-            DWORD IDChest;
             HANDLE hChest[1];
+            DWORD IDChest;
+
             bool hasEnemy = false;
             bool hasChest = false;
             if (playingRoom->elements[0].enemy.id == ID_ENEMY) {
@@ -810,22 +818,9 @@ int main()
 
                 WaitForSingleObject(hEvent[3], INFINITE);
                 WaitForSingleObject(hEvent[4], INFINITE);
-                std::ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла ЧТЕНИЕ
-
-                if (file.is_open()) { // чтение
-
-                    file >> playingRoom->player->hp;
-                    file >> playingRoom->player->power;
-                    file >> playingRoom->player->armor;
-                    file >> playingRoom->player->intellect;
-                    file >> playingRoom->player->countOfHeal;
-                    file >> playingRoom->player->difficultyMultyplier;
-                   
-
-                    file.close();
-                }
+                ReadFromData(playingRoom);
                 
-                std::ifstream finalGame("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\final.txt"); // Открытие файла
+                std::ifstream finalGame(URL_FINAL); // Открытие файла
 
                 if (finalGame.is_open()) { // чтение
 
@@ -882,12 +877,9 @@ int main()
                         case ID_TRAP:
                             playingRoom->player->y--;
 
-                            for (int i = 2; i < 5; i++) {
-                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                    break;
-                                }
-                            }
+                            CheckTrap(playingRoom);
+
+                            PrintToData(playingRoom);
 
                             break;
                         }
@@ -930,12 +922,9 @@ int main()
                         case ID_TRAP:
                             playingRoom->player->y++;
 
-                            for (int i = 2; i < 5; i++) {
-                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                    break;
-                                }
-                            }
+                            CheckTrap(playingRoom);
+
+                            PrintToData(playingRoom);
 
                             break;
                         }
@@ -978,12 +967,9 @@ int main()
                         case ID_TRAP:
                             playingRoom->player->x--;
 
-                            for (int i = 2; i < 5; i++) {
-                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                    break;
-                                }
-                            }
+                            CheckTrap(playingRoom);
+
+                            PrintToData(playingRoom);
 
                             break;
                         }
@@ -1026,12 +1012,9 @@ int main()
                         case ID_TRAP:
                             playingRoom->player->x++;
 
-                            for (int i = 2; i < 5; i++) {
-                                if (playingRoom->elements[i].trap.id == ID_TRAP && playingRoom->place[playingRoom->elements[i].trap.x][playingRoom->elements[i].trap.y] == playingRoom->place[playingRoom->player->x][playingRoom->player->y]) {
-                                    playingRoom->player->hp -= playingRoom->elements[i].trap.damage;
-                                    break;
-                                }
-                            }
+                            CheckTrap(playingRoom);
+
+                            PrintToData(playingRoom);
 
                             break;
                         }
@@ -1092,4 +1075,5 @@ int main()
     CloseHandle(hEvent[1]);
     CloseHandle(hEvent[2]);
     CloseHandle(hEvent[3]);
+    CloseHandle(hMutex);
 }

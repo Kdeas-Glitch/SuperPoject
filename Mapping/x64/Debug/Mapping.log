@@ -1,3 +1,3 @@
 ﻿  Mapping.cpp
-C:\Users\Leshu\Desktop\project\full\SuperPoject\Mapping\Mapping.cpp(164,49): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
-  Mapping.vcxproj -> C:\Users\Leshu\Desktop\project\full\SuperPoject\x64\Debug\Mapping.exe
+D:\ProgrammingAll\3kurs\SuperPoject\Mapping\Mapping.cpp(164,49): warning C4244: аргумент: преобразование "float" в "DWORD", возможна потеря данных
+  Mapping.vcxproj -> D:\ProgrammingAll\3kurs\SuperPoject\x64\Debug\Mapping.exe

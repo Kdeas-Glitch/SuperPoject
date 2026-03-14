@@ -6,6 +6,11 @@
 #include <conio.h>
 #include <string>
 #include <iomanip>
+
+#define URL_DATA "..\\full_project_game\\data.txt"
+#define URL_BOSS "..\\full_project_game\\boss.txt"
+#define URL_FINAL "..\\full_project_game\\final.txt"
+
 using namespace std;
 const string SLIME[] = {
 "                         **************                                 ",
@@ -351,6 +356,38 @@ DWORD WINAPI Fight(LPVOID lpParam) {
 
 }
 
+void PrintToData(Player* player) {
+    std::ofstream data(URL_DATA); // Открытие файла // ЗАПИСЬ
+    if (data.is_open()) { // запись
+
+        data << player->hp << std::endl;
+        data << player->power << std::endl;
+        data << player->armor << std::endl;
+        data << player->intellect << std::endl;
+        data << player->countOfHeal << std::endl;
+        data << player->difficultyMultyplier << std::endl;
+
+        data.close();
+    }
+}
+
+void ReadFromData(Player* player) {
+    std::ifstream file(URL_DATA); // Открытие файла ЧТЕНИЕ
+
+    if (file.is_open()) { // чтение
+
+        file >> player->hp;
+        file >> player->power;
+        file >> player->armor;
+        file >> player->intellect;
+        file >> player->countOfHeal;
+        file >> player->difficultyMultyplier;
+
+        file.close();
+    }
+}
+
+
 int main()
 {
     srand(time(NULL));
@@ -374,7 +411,7 @@ int main()
     Data data;
     Enemy enemy;
     Player player;
-    ifstream outBoss("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\Boss.txt");
+    ifstream outBoss(URL_BOSS);
     if (outBoss.is_open()) {
         outBoss >> isBoss;
         outBoss.close();
@@ -398,19 +435,7 @@ int main()
         enemy.name = names[randomMonster];
     }
 
-    ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла
-
-    if (file.is_open()) { // чтение
-
-        file >> player.hp;
-        file >> player.power;
-        file >> player.armor;
-        file >> player.intellect;
-        file >> player.countOfHeal;
-        file >> player.difficultyMultyplier;
-
-        file.close();
-    }
+    ReadFromData(&player);
 
     data.en = &enemy;
     data.pl = &player;
@@ -448,19 +473,10 @@ int main()
         }
     }
     bool isFinal = false;
-    ofstream fout("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt");
-    if (fout.is_open()) {
-        fout << player.hp << endl;
-        fout << player.power << endl;
-        fout << player.armor << endl;
-        fout << player.intellect << endl;
-        fout << player.countOfHeal << endl;
-        fout << player.difficultyMultyplier << endl;
-        fout.close();
-    }
+    PrintToData(&player);
     if (isBoss && enemy.hp <= 0) {
         isFinal = true;
-        ofstream fout("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\final.txt");
+        ofstream fout(URL_FINAL);
         if (fout.is_open()) {
             fout << isFinal << endl;
 

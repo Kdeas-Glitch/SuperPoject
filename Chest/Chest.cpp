@@ -5,6 +5,11 @@
 #include <ctime>
 #include <fstream>
 #include <string>
+
+#define URL_DATA "..\\full_project_game\\data.txt"
+#define URL_FIGHT_PROCESS L"..\\x64\\Debug\\Fight.exe "
+
+
 using namespace std;
 struct Player
 {
@@ -22,6 +27,9 @@ struct DataChest {
     // в будущем здесь будет структура врага(наврено)
     Player* pl;
 };
+
+
+
 bool isLooted = false;
 DWORD WINAPI Chest(LPVOID lpParam) {
     DataChest* data = (DataChest*)lpParam;
@@ -29,7 +37,7 @@ DWORD WINAPI Chest(LPVOID lpParam) {
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
-    wchar_t figth_process[] = L"C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\x64\\Debug\\Fight.exe ";
+    wchar_t figth_process[] = URL_FIGHT_PROCESS;
     Player* p = data->pl;
     srand(time(NULL) + GetCurrentThreadId());
 
@@ -95,7 +103,7 @@ DWORD WINAPI Chest(LPVOID lpParam) {
                
             }
            
-            ofstream fout("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt");
+            ofstream fout(URL_DATA);
             if (fout.is_open()) {
                 fout << p->hp << endl;
                 fout << p->power << endl;
@@ -117,24 +125,28 @@ DWORD WINAPI Chest(LPVOID lpParam) {
     return 0;
 }
 
+void ReadFromData(Player* player) {
+    std::ifstream file(URL_DATA); // Открытие файла ЧТЕНИЕ
+
+    if (file.is_open()) { // чтение
+
+        file >> player->hp;
+        file >> player->power;
+        file >> player->armor;
+        file >> player->intellect;
+        file >> player->countOfHeal;
+        file >> player->difficultyMultyplier;
+
+        file.close();
+    }
+}
+
 int main()
 {
     
     setlocale(LC_ALL, "rus");
     Player player;
-    ifstream file("C:\\Users\\Leshu\\Desktop\\project\\SuperPoject\\data.txt"); // Открытие файла
-
-    if (file.is_open()) {
-
-        file >> player.hp;
-        file >> player.power;
-        file >> player.armor;
-        file >> player.intellect;
-        file >> player.countOfHeal;
-        file >> player.difficultyMultyplier;
-
-        file.close();
-    }
+    ReadFromData(&player);
     DataChest dataChest;
     dataChest.pl = &player;
     HANDLE chest = CreateEvent(NULL, TRUE, FALSE, L"OpenChest");
